@@ -505,10 +505,10 @@ def generate_custom_theme():
     c_outgoing = hex_to_signed_int(outgoing_hex)
     c_white = -1
     c_gray = hex_to_signed_int("#94a3b8")
-    c_incoming = hex_to_signed_int("#B997D0")
+    c_incoming_text = hex_to_signed_int("#B997D0")
     c_selected = hex_to_signed_int("#334155")
 
-    # مفاتيح الثيم الشاملة والمحدثة مع مفاتيح صندوق كتابة الرسائل والصوتيات والقوائم المنبثقة بدقة مطلقة
+    # مفاتيح الثيم الشاملة والمطابقة بالكامل لهيكل البوت الاحترافي الناجح
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -518,15 +518,13 @@ def generate_custom_theme():
         "windowBackgroundWhiteGrayText": c_gray,
         "dialogTextBlack": c_white,
         
-        # صندوق كتابة الرسائل (Message Input Box) لتلافي اللون الأبيض
+        # صندوق كتابة الرسائل (Message Input Box) والشريط العلوي والقوائم
         "chat_messagePanelBackground": c_card,
         "chat_messagePanelText": c_white,
         "chat_messagePanelHint": c_gray,
         "chat_messagePanelIcons": c_accent,
         "chat_messagePanelSend": c_accent,
         "chat_messagePanelLine": c_card,
-        
-        # القوائم المنبثقة وخيارات التفاعل (Context menus & Action sheets)
         "actionBarDefaultSubmenuBackground": c_card,
         "actionBarDefaultSubmenuItem": c_white,
         "actionBarDefaultSubmenuItemIcon": c_accent,
@@ -535,7 +533,7 @@ def generate_custom_theme():
         "chats_actionText": c_white,
         "profileActionBackground": c_accent,
         
-        # ألوان العناوين والأيقونات العامة
+        # العناوين والخلفيات والقوائم
         "actionBarDefault": c_bg,
         "actionBarDefaultIcon": c_accent,
         "actionBarDefaultTitle": c_white,
@@ -543,7 +541,7 @@ def generate_custom_theme():
         "chats_name": c_white,
         "chats_message": c_gray,
         
-        # الفقاعات والنصوص والروابط والهاشتاجات
+        # فقاعات المحادثة والرسائل والنصوص
         "chat_inBubble": c_card,
         "chat_outBubble": c_outgoing,
         "chat_messageTextIn": c_white,
@@ -553,15 +551,13 @@ def generate_custom_theme():
         "chat_inSiteName": c_accent,
         "chat_outSiteName": c_accent,
         
-        # أسماء الملفات والأوقات
+        # الملفات، الأوقات، والاقتباسات
         "chat_inFileNameText": c_white,
         "chat_outFileNameText": c_white,
         "chat_fileBackground": c_outgoing,
         "chat_fileProgress": c_accent,
-        "chat_inTimeText": c_incoming,
-        "chat_outTimeText": c_incoming,
-        
-        # اقتباسات الردود
+        "chat_inTimeText": c_incoming_text,
+        "chat_outTimeText": c_incoming_text,
         "chat_inReplyNameText": c_accent,
         "chat_outReplyNameText": c_accent,
         "chat_inReplyMessageText": c_white,
@@ -572,13 +568,13 @@ def generate_custom_theme():
         # الصوتيات وتسجيلات الصوت بشكل دقيق متكامل
         "chat_inAudioTitleText": c_white,
         "chat_outAudioTitleText": c_white,
-        "chat_inAudioPerformerText": c_incoming,
-        "chat_outAudioPerformerText": c_incoming,
+        "chat_inAudioPerformerText": c_incoming_text,
+        "chat_outAudioPerformerText": c_incoming_text,
         "chat_inAudioSeekbar": c_card,
         "chat_outAudioSeekbar": c_outgoing,
         "chat_inAudioSeekbarFill": c_white,
         "chat_outAudioSeekbarFill": c_white,
-        "chat_inAudioProgress": c_incoming,
+        "chat_inAudioProgress": c_incoming_text,
         "chat_outAudioProgress": c_white,
         "chat_inVoiceProgress": c_white,
         "chat_outVoiceProgress": c_white,
@@ -586,13 +582,19 @@ def generate_custom_theme():
         "chat_outVoiceSeekbar": c_outgoing,
         "chat_inVoiceSeekbarFill": c_white,
         "chat_outVoiceSeekbarFill": c_white,
-        "chat_inAudioDuration": c_incoming,
-        "chat_outAudioDuration": c_incoming,
+        "chat_inAudioDuration": c_incoming_text,
+        "chat_outAudioDuration": c_incoming_text,
         
-        # تحديد الرسائل (Long-press selection background)
+        # إضافات المفاتيح الهامة المستفادة من البوت الناجح لمنع أي ألوان افتراضية غير متناسقة
+        "chat_inMenu": c_accent,
+        "chat_outMenu": c_accent,
         "chat_selectedBackground": c_selected,
-        
         "dialogButton": c_accent,
+        "dialogButtonSelector": c_selected,
+        "chat_textSelectBackground": c_selected,
+        "chat_linkSelectBackground": c_selected,
+        "windowBackgroundWhiteLinkText": c_accent,
+        "windowBackgroundWhiteBlueText": c_accent,
     }
 
     file_content = "\n".join(f"{key}={value}" for key, value in theme_keys.items()) + "\n"
@@ -613,7 +615,7 @@ def generate_custom_theme():
                 files = {"document": ("Custom_Telegram_Theme.attheme", f)}
                 data = {
                     "chat_id": user_id, 
-                    "caption": "✨ تفضل ملف الثيم المحدث مع إصلاح صندوق الكتابة، الصوتيات، القوائم المنبثقة، والروابط!"
+                    "caption": "✨ تفضل ملف الثيم المحدث بالمفاتيح الشاملة والمتكاملة لتطبيق الألوان بكل دقة!"
                 }
                 requests.post(url, data=data, files=files)
 
@@ -641,7 +643,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم تحديث مفاتيح الثيم لتشمل صندوق كتابة الرسائل، الصوتيات، والقوائم المنبثقة. جرب تطبيق الملف الجديد:",
+        "تم تحديث مفاتيح الثيم لتطابق الهيكل الاحترافي الكامل. جرب تطبيق الملف الجديد:",
         reply_markup=keyboard
     )
 
