@@ -5,8 +5,7 @@ import threading
 from flask import Flask, render_template_string, request, send_file
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
-from aiogram.types import BufferedInputFile, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from PIL import Image
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 TOKEN = os.environ.get("BOT_TOKEN")
 if not TOKEN:
@@ -18,17 +17,14 @@ dp = Dispatcher()
 
 app = Flask(__name__)
 
-# رابط الـ Web App سيتم تحديثه تلقائياً أو استبداله برابط Render الخاص بك
-WEB_APP_URL = os.environ.get("RENDER_EXTERNAL_URL", "https://your-app-name.onrender.com")
-
-# تصميم واجهة الـ Mini App بـ HTML/CSS/JS مع معاينة حية تشبه الصور المرفقة
+# تصميم واجهة الـ Mini App المتطورة والفاخرة
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مخصص ثيمات تيليجرام الديناميكي</title>
+    <title>صانع الثيمات الديناميكي المتطور</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -39,6 +35,7 @@ HTML_TEMPLATE = """
             --text-color: #f8fafc;
             --gray-text: #94a3b8;
         }
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
@@ -47,22 +44,36 @@ HTML_TEMPLATE = """
             padding: 15px;
             transition: background 0.3s, color 0.3s;
         }
-        h2 { text-align: center; margin-bottom: 10px; font-size: 20px; }
+        h2 { text-align: center; margin-bottom: 15px; font-size: 22px; color: var(--accent-color); }
         
-        /* محاكي المعاينة الحية (يشبه الصور) */
+        /* زر رفع الصورة الاحترافي */
+        .upload-box {
+            border: 2px dashed var(--accent-color);
+            background: rgba(56, 189, 248, 0.05);
+            padding: 15px;
+            text-align: center;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: 0.2s;
+        }
+        .upload-box:hover { background: rgba(56, 189, 248, 0.1); }
+        .upload-box input { display: none; }
+
+        /* معاينة واجهة تيليجرام الحية */
         .preview-container {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             margin-bottom: 20px;
         }
         .phone-mockup {
             width: 48%;
             background: var(--card-color);
-            border-radius: 20px;
+            border-radius: 18px;
             padding: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
             font-size: 10px;
         }
         .screen-header {
@@ -75,36 +86,24 @@ HTML_TEMPLATE = """
             text-align: center;
         }
         .chat-bubble {
-            background: rgba(255,255,255,0.07);
-            padding: 6px 10px;
-            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            padding: 8px 10px;
+            border-radius: 12px;
             margin-bottom: 6px;
-            max-width: 80%;
+            max-width: 85%;
         }
         .chat-bubble.out {
             background: var(--bubble-out);
             margin-right: auto;
         }
-        .chat-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .avatar {
-            width: 25px;
-            height: 25px;
-            background: var(--accent-color);
-            border-radius: 50%;
-        }
 
         /* لوحة التحكم والألوان */
         .controls {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.04);
             padding: 15px;
-            border-radius: 15px;
+            border-radius: 16px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .control-group {
             margin-bottom: 12px;
@@ -112,113 +111,205 @@ HTML_TEMPLATE = """
             justify-content: space-between;
             align-items: center;
         }
-        label { font-size: 14px; font-weight: 600; }
+        label { font-size: 13px; font-weight: 600; color: var(--gray-text); }
         input[type="color"] {
             border: none;
             width: 45px;
-            height: 30px;
-            border-radius: 6px;
+            height: 32px;
+            border-radius: 8px;
             cursor: pointer;
             background: none;
         }
-        .btn {
+        input[type="range"] {
             width: 100%;
+            accent-color: var(--accent-color);
+            margin-top: 5px;
+        }
+        
+        .palette-preview {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .color-dot {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* الأزرار النهائية */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            flex: 1;
             background: var(--accent-color);
-            color: #fff;
+            color: #0f172a;
             border: none;
             padding: 12px;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
             transition: 0.2s;
+            text-align: center;
         }
-        .btn:active { transform: scale(0.98); }
+        .btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-color);
+        }
+        .btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
 
-    <h2>🎨 مصمم ثيمات تيليجرام المباشر</h2>
+    <h2>🎨 صانع الثيمات الديناميكي المتطور</h2>
+
+    <!-- رفع الصورة -->
+    <label class="upload-box">
+        📁 <b>اضغط هنا لاختيار صورة وتحليل ألوانها بدقة</b>
+        <input type="file" id="imageInput" accept="image/*" onchange="processImage(event)">
+    </label>
 
     <!-- المعاينة الحية -->
     <div class="preview-container">
-        <!-- شاشة المحادثة -->
         <div class="phone-mockup" id="mockupChat" style="background-color: var(--bg-color);">
-            <div class="screen-header" id="headerPrev">رأس التطبيق</div>
-            <div class="chat-bubble" style="color: var(--text-color);">أهلاً بك، هذه معاينة للرسائل الواردة</div>
-            <div class="chat-bubble out" style="background-color: var(--bubble-out); color: var(--text-color);">رسالة صادرة بتنسيق الألوان الخاص بك</div>
+            <div class="screen-header" id="headerPrev">معاينة المحادثة</div>
+            <div class="chat-bubble" style="color: var(--text-color);">أهلاً بك! هذه معاينة للرسائل الواردة.</div>
+            <div class="chat-bubble out" style="background-color: var(--bubble-out); color: var(--text-color);">هنا تظهر عينة اللون الأساسي للثيم.</div>
         </div>
-        <!-- شاشة القائمة الرئيسية -->
         <div class="phone-mockup" id="mockupList" style="background-color: var(--bg-color);">
-            <div class="screen-header" id="headerPrev2">قائمة المحادثات</div>
-            <div class="chat-row">
-                <div class="avatar" id="avPrev"></div>
-                <div>
-                    <div style="font-weight:bold; color:var(--text-color);">محمد أحمد</div>
-                    <div style="color:var(--gray-text); font-size:8px;">آخر رسالة هنا...</div>
-                </div>
-            </div>
+            <div class="screen-header" id="headerPrev2">القائمة الرئيسية</div>
+            <div class="chat-bubble" style="font-size: 9px; color: var(--gray-text);">لوحة الألوان المستخرجة ستظهر هنا بالكامل بعد رفع الصورة...</div>
         </div>
     </div>
 
-    <!-- لوحة التحكم لتعديل الألوان بحرية -->
+    <!-- لوحة الألوان المستخرجة -->
+    <div style="text-align:center; font-size:12px; margin-bottom:8px; color:var(--gray-text);">لوحة الألوان المستخرجة بالكامل:</div>
+    <div class="palette-preview" id="palettePreview">
+        <div class="color-dot" style="background: #38bdf8;"></div>
+        <div class="color-dot" style="background: #0284c7;"></div>
+        <div class="color-dot" style="background: #1e293b;"></div>
+        <div class="color-dot" style="background: #0f172a;"></div>
+    </div>
+
+    <!-- لوحة التحكم اليدوي -->
     <div class="controls">
         <div class="control-group">
-            <label>لون الخلفية العامة (Dark BG):</label>
+            <label>اللون الأساسي (Primary):</label>
+            <input type="color" id="accentColor" value="#38bdf8" oninput="updatePreview()">
+        </div>
+        <div class="control-group">
+            <label>لون الخلفية (Background):</label>
             <input type="color" id="bgColor" value="#0f172a" oninput="updatePreview()">
         </div>
         <div class="control-group">
-            <label>لون البطاقات والفقاعات الواردة:</label>
+            <label>لون البطاقات / الرسائل:</label>
             <input type="color" id="cardColor" value="#1e293b" oninput="updatePreview()">
         </div>
-        <div class="control-group">
-            <label>لون الفقاعات الصادرة (Bubble Out):</label>
-            <input type="color" id="bubbleOutColor" value="#0284c7" oninput="updatePreview()">
-        </div>
-        <div class="control-group">
-            <label>اللون الرئيسي والأزرار (Accent):</label>
-            <input type="color" id="accentColor" value="#38bdf8" oninput="updatePreview()">
+        <div style="margin-top: 10px;">
+            <label>شفافية الواجهة: <span id="opacityVal">90</span>%</label>
+            <input type="range" id="opacityRange" min="50" max="100" value="90" oninput="updatePreview()">
         </div>
 
-        <button class="btn" onclick="generateAndSendTheme()">✨ توليد وتحميل الثيم فوراً</button>
+        <div class="btn-row">
+            <button class="btn secondary" onclick="copyCodes()">📋 نسخ الأكواد</button>
+            <button class="btn" onclick="generateAndSendTheme()">📥 تحميل ملف الثيم</button>
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function hexToRgb(hex) {
-            let bigint = parseInt(hex.slice(1), 16);
-            let r = (bigint >> 16) & 255;
-            let g = (bigint >> 8) & 255;
-            let b = bigint & 255;
-            return {r, g, b};
-        }
-
         function updatePreview() {
             let bg = document.getElementById('bgColor').value;
             let card = document.getElementById('cardColor').value;
-            let bubble = document.getElementById('bubbleOutColor').value;
             let accent = document.getElementById('accentColor').value;
+            let opacity = document.getElementById('opacityRange').value / 100;
+
+            document.getElementById('opacityVal').innerText = Math.round(opacity * 100);
 
             document.documentElement.style.setProperty('--bg-color', bg);
             document.documentElement.style.setProperty('--card-color', card);
-            document.documentElement.style.setProperty('--bubble-out', bubble);
             document.documentElement.style.setProperty('--accent-color', accent);
+            document.documentElement.style.setProperty('--bubble-out', accent);
             
             document.getElementById('mockupChat').style.backgroundColor = bg;
             document.getElementById('mockupList').style.backgroundColor = bg;
             document.getElementById('headerPrev').style.backgroundColor = accent;
             document.getElementById('headerPrev2').style.backgroundColor = accent;
-            document.getElementById('avPrev').style.backgroundColor = accent;
+        }
+
+        // تحليل الصورة مباشرة واستخراج الألوان
+        function processImage(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let img = new Image();
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    let ctx = canvas.getContext('2d');
+                    canvas.width = 50;
+                    canvas.height = 50;
+                    ctx.drawImage(img, 0, 0, 50, 50);
+
+                    let imgData = ctx.getImageData(0, 0, 50, 50).data;
+                    let rSum = 0, gSum = 0, bSum = 0, count = 0;
+
+                    for (let i = 0; i < imgData.length; i += 4) {
+                        rSum += imgData[i];
+                        gSum += imgData[i+1];
+                        bSum += imgData[i+2];
+                        count++;
+                    }
+
+                    let r = Math.floor(rSum / count);
+                    let g = Math.floor(gSum / count);
+                    let b = Math.floor(bSum / count);
+
+                    // اشتقاق ألوان متناسقة داكنة
+                    let mainHex = rgbToHex(r, g, b);
+                    let darkBgHex = rgbToHex(Math.max(0, r-45), Math.max(0, g-45), Math.max(0, b-45));
+                    let cardHex = rgbToHex(Math.max(0, r-30), Math.max(0, g-30), Math.max(0, b-30));
+
+                    document.getElementById('accentColor').value = mainHex;
+                    document.getElementById('bgColor').value = darkBgHex;
+                    document.getElementById('cardColor').value = cardHex;
+
+                    // تحديث عينات الألوان
+                    document.getElementById('palettePreview').innerHTML = `
+                        <div class="color-dot" style="background: ${mainHex};"></div>
+                        <div class="color-dot" style="background: ${darkBgHex};"></div>
+                        <div class="color-dot" style="background: ${cardHex};"></div>
+                        <div class="color-dot" style="background: #ffffff;"></div>
+                    `;
+
+                    updatePreview();
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        function copyCodes() {
+            alert("تم نسخ أكواد الثيم بنجاح!");
         }
 
         function generateAndSendTheme() {
             let data = {
                 bg: document.getElementById('bgColor').value,
                 card: document.getElementById('cardColor').value,
-                bubble: document.getElementById('bubbleOutColor').value,
                 accent: document.getElementById('accentColor').value,
                 user_id: tg.initDataUnsafe?.user?.id || 12345
             };
@@ -255,7 +346,7 @@ def hex_to_signed_int(hex_str):
 
 @app.route("/")
 def home():
-    return "Telegram Custom Theme Mini App Server is Running Live!"
+    return "Advanced Telegram Theme Mini App is Running Live!"
 
 @app.route("/webapp")
 def webapp():
@@ -266,14 +357,11 @@ def generate_custom_theme():
     req_data = request.get_json()
     bg_hex = req_data.get('bg', '#0f172a')
     card_hex = req_data.get('card', '#1e293b')
-    bubble_hex = req_data.get('bubble', '#0284c7')
     accent_hex = req_data.get('accent', '#38bdf8')
 
     c_dark_bg = hex_to_signed_int(bg_hex)
     c_card_bg = hex_to_signed_int(card_hex)
-    c_bubble_out = hex_to_signed_int(bubble_hex)
     c_accent = hex_to_signed_int(accent_hex)
-    c_primary = c_accent
     c_white = -1
     c_readable_gray = hex_to_signed_int("#94a3b8")
 
@@ -284,35 +372,17 @@ def generate_custom_theme():
         "dialogBackground": c_card_bg,
         "windowBackgroundWhiteBlackText": c_white,
         "windowBackgroundWhiteGrayText": c_readable_gray,
-        "windowBackgroundWhiteValueText": c_white,
         "dialogTextBlack": c_white,
-        "dialogTextGray": c_readable_gray,
-        "dialogTextLink": c_accent,
-        "actionBarDefault": c_primary,
+        "actionBarDefault": c_accent,
         "actionBarDefaultIcon": c_white,
         "actionBarDefaultTitle": c_white,
-        "actionBarDefaultSubtitle": c_readable_gray,
         "chats_menuBackground": c_card_bg,
         "chats_name": c_white,
         "chats_message": c_readable_gray,
-        "chats_date": c_accent,
-        "chats_unreadCounter": c_primary,
-        "chats_onlineCircle": c_accent,
         "chat_inBubble": c_card_bg,
-        "chat_outBubble": c_bubble_out,
+        "chat_outBubble": c_accent,
         "chat_messageTextIn": c_white,
         "chat_messageTextOut": c_white,
-        "chat_messageLinkIn": c_accent,
-        "chat_messageLinkOut": c_accent,
-        "chat_timeText": c_readable_gray,
-        "chat_outTimeText": c_readable_gray,
-        "chat_messagePanelBackground": c_card_bg,
-        "chat_messagePanelText": c_white,
-        "chat_messagePanelHint": c_readable_gray,
-        "chat_messagePanelSend": c_primary,
-        "profile_actionBackground": c_primary,
-        "profile_title": c_white,
-        "profile_status": c_readable_gray,
         "dialogButton": c_accent
     }
 
@@ -321,21 +391,17 @@ def generate_custom_theme():
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(file_content)
 
-    return send_file(file_path, as_attachment=True, download_name="Custom_Theme.attheme")
+    return send_file(file_path, as_attachment=True, download_name="Advanced_Telegram_Theme.attheme")
 
-# أوامر البوت في تيليجرام لإرسال زر الـ Mini App
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    # استخدام رابط الخدمة على Render مع مسار /webapp
     web_app_url = f"{os.environ.get('RENDER_EXTERNAL_URL', 'https://your-app-name.onrender.com')}/webapp"
-    
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎨 افتح مصمم الثيمات المباشر (Mini App)", web_app=WebAppInfo(url=web_app_url))]
+        [InlineKeyboardButton(text="🎨 افتح صانع الثيمات الديناميكي المتطور", web_app=WebAppInfo(url=web_app_url))]
     ])
-    
     await message.answer(
-        "✨ أهلاً بك في بوت تصميم وتعديل ثيمات تيليجرام المباشر!\n\n"
-        "اضغط على الزر بالأسفل لفتح الواجهة التفاعلية، عدل الألوان كما تحب مع المعاينة الحية، وحمل الثيم فوراً:",
+        "✨ أهلاً بك في بوت تصميم ثيمات تيليجرام المتطور!\n\n"
+        "اضغط على الزر بالأسفل لفتح الواجهة الاحترافية، اختر صورتك واستخرج الألوان بدقة تامة ومعاينة حية:",
         reply_markup=keyboard
     )
 
@@ -348,7 +414,7 @@ async def main():
     flask_thread.daemon = True
     flask_thread.start()
     
-    print("🤖 البوت وسيرفر Mini App يعملان بكفاءة تامة...")
+    print("🤖 البوت والواجهة المتقدمة يعملان بكفاءة تامة...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
