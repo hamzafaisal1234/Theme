@@ -2,6 +2,7 @@ import os
 import logging
 import asyncio
 import threading
+import sqlite3
 import requests
 from flask import Flask, render_template_string, request, jsonify, Response
 from aiogram import Bot, Dispatcher, types
@@ -17,6 +18,44 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher()
 app = Flask(__name__)
 
+# --- قاعدة البيانات المحلية SQLite لتسجيل الثيمات ---
+DB_NAME = "themes_history.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS saved_themes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            bg_color TEXT,
+            card_color TEXT,
+            accent_color TEXT,
+            outgoing_color TEXT,
+            secondary_color TEXT,
+            opacity INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def save_theme_to_db(user_id, bg, card, accent, outgoing, secondary, opacity):
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO saved_themes (user_id, bg_color, card_color, accent_color, outgoing_color, secondary_color, opacity)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (str(user_id), bg, card, accent, outgoing, secondary, opacity))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logging.error(f"Database error: {e}")
+
+# --- واجهة المستخدم (محدثة مع محاكي الوضع الفاتح/الداكن الذكي) ---
 HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -121,6 +160,7 @@ input[type=range] {
     text-align: center; text-decoration: none; display: inline-block;
 }
 .btn.secondary { background:rgba(255,255,255,.1); color:var(--text-color); }
+.btn.mode-toggle { background: #334155; color: #f8fafc; margin-bottom: 10px; flex: unset; width: 100%; }
 .status { font-size:12px; text-align:center; color: var(--accent-color); margin-top:10px; font-weight: bold; word-break: break-all; }
 @media (max-width: 380px) {
     body { padding: 10px; }
@@ -130,6 +170,8 @@ input[type=range] {
 </head>
 <body>
 <h2>🎨 صانع ثيمات تيليجرام الذكي</h2>
+
+<button class="btn mode-toggle" id="modeToggleBtn" type="button">☀️ تحويل ألوان الثيم الحالي إلى الوضع الفاتح</button>
 
 <label class="upload-box">
     📁 اضغط لاختيار صورة (استخراج ألوان ذكي وتطبيقها كخلفية حية)
@@ -158,7 +200,6 @@ input[type=range] {
 </defs>
 <rect width="1080" height="1080" fill="url(#previewBg)"/>
 
-<!-- الهاتف الأيسر: شاشة محادثة مع خلفية الصورة المرفوعة -->
 <g transform="translate(75 75)" filter="url(#previewShadow)">
 <rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
 <g clip-path="url(#leftClip)">
@@ -220,7 +261,6 @@ input[type=range] {
 </g>
 </g></g>
 
-<!-- الهاتف الأيمن: قائمة المحادثات -->
 <g transform="translate(585 120)" filter="url(#previewShadow)">
 <rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
 <g clip-path="url(#rightClip)">
@@ -340,6 +380,41 @@ let telegramUserId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.init
 if (!telegramUserId) {
     $('chatIdContainer').style.display = 'flex';
 }
+
+let isDarkMode = true;
+
+// دالة تحويل مساعدة لتكييف درجات الألوان بين الداكن والفاتح مع الحفاظ على هوية الثيم
+function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    return [parseInt(hex.substring(0,2),16), parseInt(hex.substring(2,4),16), parseInt(hex.substring(4,6),16)];
+}
+
+$('modeToggleBtn').addEventListener('click', function() {
+    isDarkMode = !isDarkMode;
+    let bg = $('bgColor').value;
+    let card = $('cardColor').value;
+    let accent = $('accentColor').value;
+    let out = $('outColor').value;
+    let sec = $('secondaryColor').value;
+
+    const bgHsl = rgbToHsl(...hexToRgb(bg));
+    const cardHsl = rgbToHsl(...hexToRgb(card));
+
+    if (!isDarkMode) {
+        // تحويل ألوان المستخدم الحالية بذكاء إلى الوضع الفاتح
+        $('bgColor').value = hslToHex(bgHsl.h, Math.min(bgHsl.s, 0.3), 0.96);
+        $('cardColor').value = hslToHex(cardHsl.h, Math.min(cardHsl.s, 0.2), 0.90);
+        $('modeToggleBtn').textContent = '🌙 تحويل ألوان الثيم الحالي إلى الوضع الداكن';
+        setStatus('☀️ تم تكييف ألوان ثيمك الخاص إلى الوضع الفاتح بنجاح!');
+    } else {
+        // العودة للوضع الداكن المعتمد على ألوان المستخدم
+        $('bgColor').value = hslToHex(bgHsl.h, Math.max(bgHsl.s, 0.3), 0.11);
+        $('cardColor').value = hslToHex(cardHsl.h, Math.max(cardHsl.s, 0.2), 0.18);
+        $('modeToggleBtn').textContent = '☀️ تحويل ألوان الثيم الحالي إلى الوضع الفاتح';
+        setStatus('🌙 تم إرجاع ألوان ثيمك الخاص إلى الوضع الداكن بنجاح!');
+    }
+    updatePreview();
+});
 
 function updatePreview() {
     const bg = $('bgColor').value;
@@ -480,7 +555,6 @@ $('imageInput').addEventListener('change', function(event) {
     reader.onload = function(e) {
         const dataUrl = e.target.result;
         
-        // إسناد الصورة المعاينة لعنصر SVG بدقة وتوافق تام
         const wallpaperImg = $('wallpaperImage');
         wallpaperImg.setAttribute('href', dataUrl);
         wallpaperImg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', dataUrl);
@@ -602,6 +676,7 @@ def hex_to_signed_int(hex_str, alpha=255):
         value -= 0x100000000
     return value
 
+
 def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val):
     bubble_alpha = round((opacity_val / 100.0) * 255)
 
@@ -615,9 +690,8 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
     c_bubble_out = hex_to_signed_int(outgoing_hex, alpha=bubble_alpha)
     
     c_selected = hex_to_signed_int("#334155")
-    c_text_main = c_accent  # مطابقة لخوارزمية الثيم القديم: النصوص الرئيسية والأسماء تأخذ لون الأساس
+    c_text_main = c_accent
 
-    # القاموس الكامل والشامل لجميع مفاتيح الثيم دون أي نقص
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -1182,7 +1256,7 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
 
 @app.route("/")
 def home():
-    return "Advanced Telegram Theme Mini App is running."
+    return "Advanced Telegram Theme Mini App with SQLite Database is running."
 
 @app.route("/webapp")
 def webapp():
@@ -1197,7 +1271,9 @@ def download_theme():
     secondary_hex = request.args.get("secondary", "#B997D0")
     opacity_val = int(request.args.get("opacity", 90))
 
-    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
+    file_content = build_theme_content(
+        bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val
+    )
     return Response(
         file_content,
         mimetype="text/plain",
@@ -1218,7 +1294,11 @@ def generate_custom_theme():
     if not user_id:
         return jsonify({"success": False, "error": "معرف تيليجرام غير متوفر."}), 400
 
-    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
+    save_theme_to_db(user_id, bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
+
+    file_content = build_theme_content(
+        bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val
+    )
     
     import tempfile
     handle = tempfile.NamedTemporaryFile(
@@ -1235,7 +1315,7 @@ def generate_custom_theme():
             files = {"document": ("Custom_Smart_Theme.attheme", f)}
             data = {
                 "chat_id": user_id, 
-                "caption": "✨ تفضل ملف الثيم الشامل بكافة مفاتيحه دون أي نقص وبخوارزمية مطابقة تماماً!"
+                "caption": "✨ تفضل ملف الثيم الشامل بكافة مفاتيحه، وتم حفظ تفاصيل الثيم في قاعدة البيانات بنجاح!"
             }
             resp = requests.post(url, data=data, files=files)
             if not resp.ok:
@@ -1269,7 +1349,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم إصلاح مشكلة معاينة الصور وكافة المفاتيح بنجاح:",
+        "تم تفعيل محول الألوان الذكي بين الوضعين الفاتح والداكن:",
         reply_markup=keyboard
     )
 
@@ -1280,7 +1360,7 @@ def run_flask():
 async def main():
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
-    logging.info("Flask Mini App and Telegram bot are starting.")
+    logging.info("Flask Mini App and Telegram bot with Smart Theme Adaptor are starting.")
     try:
         await dp.start_polling(bot)
     finally:
