@@ -23,15 +23,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="theme-color" content="#0f172a">
-<title>صانع ثيمات تيليجرام</title>
+<title>صانع ثيمات تيليجرام الذكي</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
     --bg-color: #0f172a;
     --card-color: #1e293b;
     --accent-color: #38bdf8;
+    --secondary-color: #B997D0;
     --bubble-out: #0284c7;
-    --incoming-color: #B997D0;
     --text-color: #f8fafc;
     --gray-text: #94a3b8;
     --ui-opacity: .90;
@@ -123,10 +123,10 @@ input[type=range] {
 </style>
 </head>
 <body>
-<h2>🎨 صانع ثيمات تيليجرام</h2>
+<h2>🎨 صانع ثيمات تيليجرام الذكي</h2>
 
 <label class="upload-box">
-    📁 اضغط لاختيار صورة (ستظهر كخلفية للمعاينة ويتم استخراج ألوانها)
+    📁 اضغط لاختيار صورة (استخراج ألوان ذكي وتطبيقها كخلفية حية)
     <input type="file" id="imageInput" accept="image/*">
 </label>
 
@@ -161,7 +161,7 @@ input[type=range] {
 <rect width="420" height="95" fill="var(--bg-color)" opacity="0.9"/>
 <circle cx="50" cy="55" r="12" fill="var(--accent-color)"/>
 <rect x="75" y="45" width="110" height="12" rx="6" fill="var(--text-color)"/>
-<rect x="75" y="63" width="60" height="8" rx="4" fill="var(--incoming-color)"/>
+<rect x="75" y="63" width="60" height="8" rx="4" fill="var(--secondary-color)"/>
 <circle cx="375" cy="55" r="10" fill="var(--accent-color)"/>
 
 <g transform="translate(220 125)">
@@ -172,7 +172,7 @@ input[type=range] {
 <rect width="210" height="70" rx="16" fill="var(--card-color)" opacity="var(--ui-opacity)"/>
 <rect x="15" y="14" width="3" height="42" rx="1.5" fill="var(--accent-color)"/>
 <rect x="26" y="18" width="80" height="8" rx="4" fill="var(--text-color)"/>
-<rect x="26" y="34" width="140" height="8" rx="4" fill="var(--incoming-color)"/>
+<rect x="26" y="34" width="140" height="8" rx="4" fill="var(--secondary-color)"/>
 </g>
 <g transform="translate(200 270)">
 <rect width="190" height="45" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
@@ -186,7 +186,7 @@ input[type=range] {
 <rect x="84" y="18" width="3" height="32" rx="1.5"/><rect x="91" y="26" width="3" height="16" rx="1.5"/>
 <rect x="98" y="20" width="3" height="28" rx="1.5"/>
 </g>
-<g fill="var(--incoming-color)">
+<g fill="var(--secondary-color)">
 <rect x="105" y="28" width="3" height="12" rx="1.5"/><rect x="112" y="23" width="3" height="22" rx="1.5"/>
 <rect x="119" y="19" width="3" height="30" rx="1.5"/><rect x="126" y="25" width="3" height="18" rx="1.5"/>
 <rect x="133" y="30" width="3" height="8" rx="1.5"/><rect x="140" y="22" width="3" height="24" rx="1.5"/>
@@ -198,7 +198,7 @@ input[type=range] {
 <rect width="210" height="72" rx="18" fill="var(--card-color)" opacity="var(--ui-opacity)"/>
 <circle cx="30" cy="36" r="16" fill="var(--accent-color)"/>
 <rect x="56" y="22" width="100" height="8" rx="4" fill="var(--text-color)"/>
-<rect x="56" y="38" width="70" height="8" rx="4" fill="var(--incoming-color)"/>
+<rect x="56" y="38" width="70" height="8" rx="4" fill="var(--secondary-color)"/>
 <circle cx="30" cy="36" r="5" fill="var(--bg-color)"/>
 </g>
 <g transform="translate(200 585)">
@@ -225,39 +225,39 @@ input[type=range] {
 <circle cx="345" cy="40" r="10" fill="var(--accent-color)"/>
 <circle cx="380" cy="40" r="10" fill="var(--accent-color)"/>
 <circle cx="45" cy="85" r="8" fill="var(--accent-color)"/>
-<rect x="65" y="81" width="70" height="8" rx="4" fill="var(--incoming-color)"/>
+<rect x="65" y="81" width="70" height="8" rx="4" fill="var(--secondary-color)"/>
 <circle cx="345" cy="85" r="8" fill="var(--accent-color)"/>
 <circle cx="380" cy="85" r="8" fill="var(--accent-color)"/>
 
 <g transform="translate(0 130)">
 <circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
 <rect x="95" y="24" width="75" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="75" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="95" y="44" width="75" height="9" rx="4.5" fill="var(--secondary-color)"/>
 <rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
 <circle cx="370" cy="46" r="6" fill="var(--accent-color)"/>
 </g>
 <g transform="translate(0 215)">
 <circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
 <rect x="95" y="24" width="95" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="60" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="95" y="44" width="60" height="9" rx="4.5" fill="var(--secondary-color)"/>
 <rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
 </g>
 <g transform="translate(0 300)">
 <circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
 <rect x="95" y="24" width="105" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="70" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="95" y="44" width="70" height="9" rx="4.5" fill="var(--secondary-color)"/>
 <circle cx="368" cy="42" r="9" fill="var(--card-color)"/>
 </g>
 <g transform="translate(0 385)">
 <circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
 <rect x="95" y="24" width="60" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="170" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="95" y="44" width="170" height="9" rx="4.5" fill="var(--secondary-color)"/>
 <rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
 </g>
 <g transform="translate(0 470)">
 <circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
 <rect x="95" y="24" width="85" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="50" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="95" y="44" width="50" height="9" rx="4.5" fill="var(--secondary-color)"/>
 <rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
 </g>
 <g transform="translate(325 785)">
@@ -268,7 +268,7 @@ input[type=range] {
 </svg>
 </div>
 
-<div style="text-align:center;font-size:12px;color:var(--gray-text)">لوحة الألوان الحالية</div>
+<div style="text-align:center;font-size:12px;color:var(--gray-text)">لوحة الألوان المستخرجة ذكياً</div>
 <div class="palette-preview" id="palettePreview">
     <div class="color-dot" style="background:#38bdf8"></div>
     <div class="color-dot" style="background:#0284c7"></div>
@@ -292,6 +292,10 @@ input[type=range] {
     <div class="control-group">
         <label for="outColor">لون الرسائل الصادرة</label>
         <input type="color" id="outColor" value="#0284c7">
+    </div>
+    <div class="control-group">
+        <label for="secondaryColor">لون النصوص الثانوية والتمييز</label>
+        <input type="color" id="secondaryColor" value="#B997D0">
     </div>
     <div>
         <div class="range-label">
@@ -322,39 +326,118 @@ function updatePreview() {
     const card = $('cardColor').value;
     const accent = $('accentColor').value;
     const outgoing = $('outColor').value;
+    const secondary = $('secondaryColor').value;
     const opacity = Number($('opacityRange').value) / 100;
 
     root.style.setProperty('--bg-color', bg);
     root.style.setProperty('--card-color', card);
     root.style.setProperty('--accent-color', accent);
     root.style.setProperty('--bubble-out', outgoing);
+    root.style.setProperty('--secondary-color', secondary);
     root.style.setProperty('--ui-opacity', opacity);
     $('opacityVal').textContent = Math.round(opacity * 100);
 }
 
-['accentColor', 'bgColor', 'cardColor', 'outColor', 'opacityRange']
+['accentColor', 'bgColor', 'cardColor', 'outColor', 'secondaryColor', 'opacityRange']
     .forEach(id => $(id).addEventListener('input', updatePreview));
 
-function rgbToHex(r, g, b) {
-    return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v)))
-        .toString(16).padStart(2, '0')).join('');
-}
-function hexToRgb(hex) {
-    const value = hex.replace('#', '');
-    return {
-        r: parseInt(value.slice(0, 2), 16),
-        g: parseInt(value.slice(2, 4), 16),
-        b: parseInt(value.slice(4, 6), 16)
-    };
-}
-function darken(hex, amount) {
-    const c = hexToRgb(hex);
-    return rgbToHex(c.r - amount, c.g - amount, c.b - amount);
-}
-function setStatus(message) {
-    $('statusMessage').textContent = message;
+function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const delta = max - min;
+    let h = 0;
+    const l = (max + min) / 2;
+    let s = 0;
+
+    if (delta !== 0) {
+        s = delta / (1 - Math.abs(2 * l - 1));
+        if (max === r) h = ((g - b) / delta) % 6;
+        else if (max === g) h = (b - r) / delta + 2;
+        else h = (r - g) / delta + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+    }
+    return { h, s, l };
 }
 
+function hslToHex(h, s, l) {
+    s = Math.max(0, Math.min(1, s));
+    l = Math.max(0, Math.min(1, l));
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let rgb;
+
+    if (h < 60) rgb = [c, x, 0];
+    else if (h < 120) rgb = [x, c, 0];
+    else if (h < 180) rgb = [0, c, x];
+    else if (h < 240) rgb = [0, x, c];
+    else if (h < 300) rgb = [x, 0, c];
+    else rgb = [c, 0, x];
+
+    return '#' + rgb.map(v =>
+        Math.round((v + m) * 255).toString(16).padStart(2, '0')
+    ).join('');
+}
+
+function extractThemePalette(image) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    canvas.width = 96;
+    canvas.height = 96;
+    ctx.drawImage(image, 0, 0, 96, 96);
+    const pixels = ctx.getImageData(0, 0, 96, 96).data;
+    const bins = new Map();
+
+    for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
+        if (a < 200) continue;
+        const hsl = rgbToHsl(r, g, b);
+        if (hsl.l > 0.96 || hsl.l < 0.025) continue;
+
+        const qr = Math.round(r / 16), qg = Math.round(g / 16), qb = Math.round(b / 16);
+        const key = `${qr},${qg},${qb}`;
+        const old = bins.get(key) || { r: 0, g: 0, b: 0, count: 0 };
+        old.r += r; old.g += g; old.b += b; old.count++;
+        bins.set(key, old);
+    }
+
+    const colors = [...bins.values()]
+        .filter(c => c.count >= 2)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 12)
+        .map(c => ({
+            count: c.count,
+            ...rgbToHsl(c.r / c.count, c.g / c.count, c.b / c.count)
+        }));
+
+    if (!colors.length) throw new Error('لم أستطع استخراج ألوان صالحة.');
+
+    const dominant = colors[0];
+    const bg = hslToHex(dominant.h, Math.min(dominant.s, 0.48), 0.105);
+
+    const accentSource = [...colors]
+        .filter(c => c.s >= 0.18)
+        .sort((a, b) => b.count * (0.65 + b.s) - a.count * (0.65 + a.s))[0] || dominant;
+
+    const accent = hslToHex(accentSource.h, Math.min(Math.max(accentSource.s, 0.38), 0.68), 0.59);
+
+    const secondarySource = [...colors]
+        .filter(c => Math.abs(c.h - accentSource.h) > 20 && c.s >= 0.12)
+        .sort((a, b) => b.count - a.count)[0];
+
+    const secondary = secondarySource
+        ? hslToHex(secondarySource.h, Math.min(secondarySource.s, 0.48), 0.70)
+        : hslToHex((accentSource.h + 55) % 360, 0.34, 0.70);
+
+    const card = hslToHex(dominant.h, Math.min(dominant.s, 0.38), 0.17);
+    const outgoing = hslToHex(accentSource.h, Math.min(Math.max(accentSource.s, 0.34), 0.60), 0.25);
+
+    return { bg, card, accent, outgoing, secondary };
+}
+
+/* رفع الصورة وتحليلها عبر المحرك الذكي الجديد */
 $('imageInput').addEventListener('change', function(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -371,37 +454,29 @@ $('imageInput').addEventListener('change', function(event) {
 
         const img = new Image();
         img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d', {willReadFrequently: true});
-            canvas.width = 64;
-            canvas.height = 64;
-            ctx.drawImage(img, 0, 0, 64, 64);
-            const pixels = ctx.getImageData(0, 0, 64, 64).data;
-            let r = 0, g = 0, b = 0, count = 0;
+            try {
+                const palette = extractThemePalette(img);
 
-            for (let i = 0; i < pixels.length; i += 4) {
-                if (pixels[i + 3] < 30) continue;
-                r += pixels[i]; g += pixels[i + 1]; b += pixels[i + 2];
-                count++;
-            }
-            if (!count) return;
+                $('bgColor').value = palette.bg;
+                $('cardColor').value = palette.card;
+                $('accentColor').value = palette.accent;
+                $('outColor').value = palette.outgoing;
+                $('secondaryColor').value = palette.secondary;
 
-            const avg = rgbToHex(r / count, g / count, b / count);
-            const darkBg = darken(avg, 45);
-            const card = darken(avg, 25);
-            const accent = avg;
-
-            $('accentColor').value = accent;
-            $('bgColor').value = darkBg;
-            $('cardColor').value = card;
-            $('outColor').value = accent;
-
-            $('palettePreview').innerHTML = [accent, darkBg, card, '#FFFFFF']
-                .map(color => '<div class="color-dot" title="' + color +
+                $('palettePreview').innerHTML = [
+                    palette.bg,
+                    palette.card,
+                    palette.accent,
+                    palette.secondary,
+                    palette.outgoing
+                ].map(color => '<div class="color-dot" title="' + color +
                     '" style="background:' + color + '"></div>').join('');
 
-            updatePreview();
-            setStatus('✨ تم تطبيق الصورة كخلفية واستخراج الألوان بنجاح!');
+                updatePreview();
+                setStatus('✨ تم استخراج لوحة الألوان الذكية وتطبيقها بنجاح!');
+            } catch (error) {
+                setStatus(error.message || 'تعذر تحليل ألوان الصورة.');
+            }
         };
         img.src = dataUrl;
     };
@@ -414,6 +489,7 @@ function currentThemeData() {
         card: $('cardColor').value,
         accent: $('accentColor').value,
         outgoing: $('outColor').value,
+        secondary: $('secondaryColor').value,
         opacity: Number($('opacityRange').value),
         user_id: tg && tg.initDataUnsafe && tg.initDataUnsafe.user
             ? tg.initDataUnsafe.user.id : null
@@ -426,7 +502,8 @@ $('copyButton').addEventListener('click', async function() {
         'Background=' + d.bg,
         'Card=' + d.card,
         'Accent=' + d.accent,
-        'Outgoing=' + d.outgoing
+        'Outgoing=' + d.outgoing,
+        'Secondary=' + d.secondary
     ].join('\n');
 
     try {
@@ -498,25 +575,27 @@ def generate_custom_theme():
     card_hex = req_data.get("card", "#1e293b")
     accent_hex = req_data.get("accent", "#38bdf8")
     outgoing_hex = req_data.get("outgoing", "#0284c7")
+    secondary_hex = req_data.get("secondary", "#B997D0")
     opacity_val = int(req_data.get("opacity", 90))
     user_id = req_data.get("user_id")
 
-    alpha_channel = int((opacity_val / 100.0) * 255)
+    # شفافية الفقاعات بناءً على خيار المستخدم (مثال: 90%)
+    bubble_alpha = round((opacity_val / 100.0) * 255)
 
     c_bg = hex_to_signed_int(bg_hex)
     c_card = hex_to_signed_int(card_hex)
     c_accent = hex_to_signed_int(accent_hex)
     c_outgoing = hex_to_signed_int(outgoing_hex)
+    c_secondary = hex_to_signed_int(secondary_hex)
     
-    # فقاعات شفافة تدعم التأثير الزجاجي (نفس منطق البوت الاحترافي ولكن بالألوان المخصصة)
-    c_bubble_in = hex_to_signed_int(card_hex, alpha=alpha_channel)
-    c_bubble_out = hex_to_signed_int(outgoing_hex, alpha=alpha_channel)
+    # فقاعات شفافة تدعم التأثير الزجاجي مع فصل الشفافية بدقة
+    c_bubble_in = hex_to_signed_int(card_hex, alpha=bubble_alpha)
+    c_bubble_out = hex_to_signed_int(outgoing_hex, alpha=bubble_alpha)
     
     c_white = -1
-    c_gray = hex_to_signed_int("#94a3b8")
     c_selected = hex_to_signed_int("#334155")
 
-    # القائمة الشاملة والكاملة لجميع مفاتيح البوت الآخر بدقة تامة وتكرار دلالي موحد
+    # القائمة الشاملة والكاملة لجميع مفاتيح تيليجرام مع التوزيع الدلالي المنسق
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -525,10 +604,10 @@ def generate_custom_theme():
         "dialogBackground": c_card,
         "dialogBackgroundGray": c_card,
         "windowBackgroundWhiteBlackText": c_white,
-        "windowBackgroundWhiteGrayText": c_gray,
+        "windowBackgroundWhiteGrayText": c_secondary,
         "dialogTextBlack": c_white,
         
-        # مجموعة ActionBar والعناوين والقوائم المنسدلة (تأخذ لون الخلفية والبطاقات والأيقونات)
+        # مجموعة ActionBar والعناوين والقوائم المنسدلة
         "actionBarActionModeDefault": c_bg,
         "actionBarActionModeDefaultIcon": c_accent,
         "actionBarActionModeDefaultSelector": c_accent,
@@ -546,9 +625,9 @@ def generate_custom_theme():
         "actionBarDefaultSelector": c_accent,
         "actionBarDefaultSubmenuBackground": c_card,
         "actionBarDefaultSubmenuItem": c_accent,
-        "actionBarDefaultSubtitle": c_accent,
+        "actionBarDefaultSubtitle": c_secondary,
         "actionBarDefaultTitle": c_white,
-        "actionBarWhiteSelector": c_gray,
+        "actionBarWhiteSelector": c_secondary,
         
         # مجموعة الأفاتار والرموز
         "avatar_actionBarIconBlue": c_accent,
@@ -575,11 +654,11 @@ def generate_custom_theme():
         "avatar_backgroundArchived": c_accent,
         "avatar_backgroundArchivedHidden": c_accent,
         "avatar_backgroundBlue": c_accent,
-        "avatar_backgroundBlueShadow": c_gray,
+        "avatar_backgroundBlueShadow": c_secondary,
         "avatar_backgroundCyan": c_accent,
-        "avatar_backgroundCyanShadow": c_gray,
+        "avatar_backgroundCyanShadow": c_secondary,
         "avatar_backgroundGreen": c_accent,
-        "avatar_backgroundGreenShadow": c_gray,
+        "avatar_backgroundGreenShadow": c_secondary,
         "avatar_backgroundInProfileBlue": c_accent,
         "avatar_backgroundInProfileCyan": c_accent,
         "avatar_backgroundInProfileGreen": c_accent,
@@ -588,13 +667,13 @@ def generate_custom_theme():
         "avatar_backgroundInProfileRed": c_accent,
         "avatar_backgroundInProfileViolet": c_accent,
         "avatar_backgroundOrange": c_accent,
-        "avatar_backgroundOrangeShadow": c_gray,
+        "avatar_backgroundOrangeShadow": c_secondary,
         "avatar_backgroundPink": c_accent,
         "avatar_backgroundRed": c_accent,
-        "avatar_backgroundRedShadow": c_gray,
+        "avatar_backgroundRedShadow": c_secondary,
         "avatar_backgroundSaved": c_accent,
         "avatar_backgroundViolet": c_accent,
-        "avatar_backgroundVioletShadow": c_gray,
+        "avatar_backgroundVioletShadow": c_secondary,
         "avatar_nameInMessageBlue": c_accent,
         "avatar_nameInMessageCyan": c_accent,
         "avatar_nameInMessageGreen": c_accent,
@@ -611,55 +690,55 @@ def generate_custom_theme():
         "avatar_subtitleInProfileViolet": c_accent,
         "avatar_text": c_bg,
         
-        # مجموعة المكالمات والدردشة
+        # مجموعة المكالمات والدردشة والملحقات
         "calls_callReceivedGreenIcon": c_accent,
         "calls_callReceivedRedIcon": c_accent,
-        "changephoneinfo_image": c_gray,
+        "changephoneinfo_image": c_secondary,
         "chat_addContact": c_accent,
         "chat_adminSelectedText": c_accent,
         "chat_adminText": c_accent,
-        "chat_attachAudioBackground": c_gray,
+        "chat_attachAudioBackground": c_secondary,
         "chat_attachAudioIcon": c_bg,
-        "chat_attachCameraIcon1": c_gray,
-        "chat_attachCameraIcon2": c_gray,
-        "chat_attachCameraIcon3": c_gray,
-        "chat_attachCameraIcon4": c_gray,
-        "chat_attachCameraIcon5": c_gray,
-        "chat_attachCameraIcon6": c_gray,
-        "chat_attachContactBackground": c_gray,
+        "chat_attachCameraIcon1": c_secondary,
+        "chat_attachCameraIcon2": c_secondary,
+        "chat_attachCameraIcon3": c_secondary,
+        "chat_attachCameraIcon4": c_secondary,
+        "chat_attachCameraIcon5": c_secondary,
+        "chat_attachCameraIcon6": c_secondary,
+        "chat_attachContactBackground": c_secondary,
         "chat_attachContactIcon": c_bg,
-        "chat_attachFileBackground": c_gray,
+        "chat_attachFileBackground": c_secondary,
         "chat_attachFileIcon": c_bg,
-        "chat_attachGalleryBackground": c_gray,
+        "chat_attachGalleryBackground": c_secondary,
         "chat_attachGalleryIcon": c_bg,
-        "chat_attachHideBackground": c_gray,
+        "chat_attachHideBackground": c_secondary,
         "chat_attachHideIcon": c_bg,
-        "chat_attachLocationBackground": c_gray,
+        "chat_attachLocationBackground": c_secondary,
         "chat_attachLocationIcon": c_bg,
-        "chat_attachMediaBanBackground": c_gray,
+        "chat_attachMediaBanBackground": c_secondary,
         "chat_attachMediaBanText": c_bg,
-        "chat_attachSendBackground": c_gray,
+        "chat_attachSendBackground": c_secondary,
         "chat_attachSendIcon": c_bg,
-        "chat_attachVideoBackground": c_gray,
+        "chat_attachVideoBackground": c_secondary,
         "chat_attachVideoIcon": c_bg,
         
-        # مجموعة أزرار البوت واللوحة والسفبار
+        # أزرار البوت واللوحة السفلى
         "chat_botButtonText": c_accent,
         "chat_botKeyboardButtonBackground": c_accent,
-        "chat_botKeyboardButtonBackgroundPressed": c_gray,
+        "chat_botKeyboardButtonBackgroundPressed": c_secondary,
         "chat_botKeyboardButtonText": c_bg,
         "chat_botProgress": c_accent,
-        "chat_botSwitchToInlineText": c_gray,
+        "chat_botSwitchToInlineText": c_secondary,
         "chat_editDoneIcon": c_accent,
         "chat_emojiPanelBackground": c_bg,
         "chat_emojiPanelBackspace": c_accent,
         "chat_emojiPanelBadgeBackground": c_accent,
         "chat_emojiPanelBadgeText": c_bg,
         "chat_emojiPanelEmptyText": c_accent,
-        "chat_emojiPanelIcon": c_gray,
+        "chat_emojiPanelIcon": c_secondary,
         "chat_emojiPanelIconSelected": c_accent,
         "chat_emojiPanelIconSelector": c_accent,
-        "chat_emojiPanelMasksIcon": c_gray,
+        "chat_emojiPanelMasksIcon": c_secondary,
         "chat_emojiPanelMasksIconSelected": c_accent,
         "chat_emojiSearchBackground": c_accent,
         "chat_fieldOverlayText": c_accent,
@@ -670,19 +749,19 @@ def generate_custom_theme():
         "chat_goDownButtonShadow": c_accent,
         
         # فقاعات الوارد والصادر وتفاصيل الصوت والملفات
-        "chat_inAudioDurationSelectedText": c_accent,
-        "chat_inAudioDurationText": c_accent,
-        "chat_inAudioPerformerSelectedText": c_accent,
-        "chat_inAudioPerformerText": c_accent,
+        "chat_inAudioDurationSelectedText": c_secondary,
+        "chat_inAudioDurationText": c_secondary,
+        "chat_inAudioPerformerSelectedText": c_secondary,
+        "chat_inAudioPerformerText": c_secondary,
         "chat_inAudioProgress": c_bg,
-        "chat_inAudioSeekbar": c_gray,
+        "chat_inAudioSeekbar": c_secondary,
         "chat_inAudioSeekbarFill": c_accent,
-        "chat_inAudioSeekbarSelected": c_gray,
+        "chat_inAudioSeekbarSelected": c_secondary,
         "chat_inAudioSelectedProgress": c_bg,
-        "chat_inAudioTitleText": c_accent,
+        "chat_inAudioTitleText": c_white,
         "chat_inBubble": c_bubble_in,
         "chat_inBubbleSelected": c_selected,
-        "chat_inBubbleShadow": c_gray,
+        "chat_inBubbleShadow": c_secondary,
         "chat_inContactBackground": c_accent,
         "chat_inContactIcon": c_bg,
         "chat_inContactNameText": c_accent,
@@ -692,11 +771,11 @@ def generate_custom_theme():
         "chat_inFileIcon": c_accent,
         "chat_inFileInfoSelectedText": c_accent,
         "chat_inFileInfoText": c_accent,
-        "chat_inFileNameText": c_accent,
+        "chat_inFileNameText": c_white,
         "chat_inFileProgress": c_bg,
         "chat_inFileProgressSelected": c_bg,
         "chat_inFileSelectedIcon": c_accent,
-        "chat_inForwardedNameText": c_accent,
+        "chat_inForwardedNameText": c_secondary,
         "chat_inInstant": c_accent,
         "chat_inInstantSelected": c_accent,
         "chat_inlineResultIcon": c_accent,
@@ -705,7 +784,7 @@ def generate_custom_theme():
         "chat_inLoaderPhotoIcon": c_accent,
         "chat_inLoaderPhotoIconSelected": c_accent,
         "chat_inLoaderPhotoSelected": c_bg,
-        "chat_inLoaderSelected": c_gray,
+        "chat_inLoaderSelected": c_secondary,
         "chat_inLocationBackground": c_bg,
         "chat_inLocationIcon": c_bg,
         "chat_inMenu": c_accent,
@@ -716,49 +795,49 @@ def generate_custom_theme():
         "chat_inReplyLine": c_accent,
         "chat_inReplyMediaMessageSelectedText": c_accent,
         "chat_inReplyMediaMessageText": c_accent,
-        "chat_inReplyMessageText": c_accent,
-        "chat_inReplyNameText": c_accent,
+        "chat_inReplyMessageText": c_secondary,
+        "chat_inReplyNameText": c_secondary,
         "chat_inSentClock": c_accent,
         "chat_inSentClockSelected": c_accent,
         "chat_inSiteNameText": c_accent,
-        "chat_inTimeSelectedText": c_accent,
-        "chat_inTimeText": c_accent,
-        "chat_inVoiceSeekbar": c_gray,
+        "chat_inTimeSelectedText": c_secondary,
+        "chat_inTimeText": c_secondary,
+        "chat_inVoiceSeekbar": c_secondary,
         "chat_inVoiceSeekbarFill": c_accent,
-        "chat_inVoiceSeekbarSelected": c_gray,
+        "chat_inVoiceSeekbarSelected": c_secondary,
         
-        # الرسائل الصادرة والروابط وصندوق الكتابة
+        # الروابط وصندوق كتابة الرسائل
         "chat_messageLinkIn": c_accent,
         "chat_messageLinkOut": c_accent,
         "chat_messagePanelBackground": c_bg,
         "chat_messagePanelCancelInlineBot": c_accent,
-        "chat_messagePanelHint": c_gray,
+        "chat_messagePanelHint": c_secondary,
         "chat_messagePanelIcons": c_accent,
         "ChatShadow": c_accent,
         "chat_messagePanelSend": c_accent,
         "chat_messagePanelShadow": c_bg,
-        "chat_messagePanelText": c_accent,
+        "chat_messagePanelText": c_white,
         "chat_messagePanelVoiceBackground": c_bg,
         "chat_messagePanelVoiceDelete": c_accent,
         "chat_messagePanelVoiceDuration": c_accent,
-        "chat_messagePanelVoicePressed": c_gray,
-        "chat_messageTextIn": c_accent,
-        "chat_messageTextOut": c_accent,
+        "chat_messagePanelVoicePressed": c_secondary,
+        "chat_messageTextIn": c_white,
+        "chat_messageTextOut": c_white,
         
         # الصادر وصوتيات الصادر
-        "chat_outAudioDurationSelectedText": c_accent,
-        "chat_outAudioDurationText": c_accent,
-        "chat_outAudioPerfomerText": c_accent,
-        "chat_outAudioPerformerSelectedText": c_accent,
+        "chat_outAudioDurationSelectedText": c_secondary,
+        "chat_outAudioDurationText": c_secondary,
+        "chat_outAudioPerfomerText": c_secondary,
+        "chat_outAudioPerformerSelectedText": c_secondary,
         "chat_outAudioProgress": c_bg,
-        "chat_outAudioSeekbar": c_gray,
+        "chat_outAudioSeekbar": c_secondary,
         "chat_outAudioSeekbarFill": c_accent,
-        "chat_outAudioSeekbarSelected": c_gray,
+        "chat_outAudioSeekbarSelected": c_secondary,
         "chat_outAudioSelectedProgress": c_bg,
-        "chat_outAudioTitleText": c_accent,
+        "chat_outAudioTitleText": c_white,
         "chat_outBubble": c_bubble_out,
         "chat_outBubbleSelected": c_selected,
-        "chat_outBubbleShadow": c_gray,
+        "chat_outBubbleShadow": c_secondary,
         "chat_outContactBackground": c_accent,
         "chat_outContactIcon": c_bg,
         "chat_outContactNameText": c_accent,
@@ -768,11 +847,11 @@ def generate_custom_theme():
         "chat_outFileIcon": c_accent,
         "chat_outFileInfoSelectedText": c_accent,
         "chat_outFileInfoText": c_accent,
-        "chat_outFileNameText": c_accent,
+        "chat_outFileNameText": c_white,
         "chat_outFileProgress": c_bg,
         "chat_outFileProgressSelected": c_bg,
         "chat_outFileSelectedIcon": c_accent,
-        "chat_outForwardedNameText": c_accent,
+        "chat_outForwardedNameText": c_secondary,
         "chat_outInstant": c_accent,
         "chat_outInstantSelected": c_accent,
         "chat_outLoader": c_accent,
@@ -780,7 +859,7 @@ def generate_custom_theme():
         "chat_outLoaderPhotoIcon": c_accent,
         "chat_outLoaderPhotoIconSelected": c_accent,
         "chat_outLoaderPhotoSelected": c_bg,
-        "chat_outLoaderSelected": c_gray,
+        "chat_outLoaderSelected": c_secondary,
         "chat_outLocationBackground": c_bg,
         "chat_outLocationIcon": c_bg,
         "chat_outMenu": c_accent,
@@ -791,28 +870,28 @@ def generate_custom_theme():
         "chat_outReplyLine": c_accent,
         "chat_outReplyMediaMessageSelectedText": c_accent,
         "chat_outReplyMediaMessageText": c_accent,
-        "chat_outReplyMessageText": c_accent,
-        "chat_outReplyNameText": c_accent,
+        "chat_outReplyMessageText": c_secondary,
+        "chat_outReplyNameText": c_secondary,
         "chat_outSentCheck": c_accent,
         "chat_outSentCheckSelected": c_accent,
         "chat_outSentClock": c_accent,
         "chat_outSentClockSelected": c_accent,
         "chat_outSiteNameText": c_accent,
-        "chat_outTimeSelectedText": c_accent,
-        "chat_outTimeText": c_accent,
-        "chat_outVoiceSeekbar": c_gray,
+        "chat_outTimeSelectedText": c_secondary,
+        "chat_outTimeText": c_secondary,
+        "chat_outVoiceSeekbar": c_secondary,
         "chat_outVoiceSeekbarFill": c_accent,
-        "chat_outVoiceSeekbarSelected": c_gray,
+        "chat_outVoiceSeekbarSelected": c_secondary,
         
-        # قوائم المحادثات العامة والقوائم المنبثقة
+        # قوائم المحادثات العامة
         "chats_actionBackground": c_accent,
         "chats_actionIcon": c_bg,
-        "chats_actionMessage": c_gray,
-        "chats_date": c_accent,
-        "chats_draft": c_accent,
+        "chats_actionMessage": c_secondary,
+        "chats_date": c_secondary,
+        "chats_draft": c_secondary,
         "chats_menuBackground": c_bg,
-        "chats_name": c_accent,
-        "chats_message": c_gray,
+        "chats_name": c_white,
+        "chats_message": c_secondary,
         "chats_unreadCounter": c_accent,
         "chats_unreadCounterText": c_bg,
         
@@ -821,10 +900,10 @@ def generate_custom_theme():
         "dialogBackgroundGray": c_bg,
         "dialogButton": c_accent,
         "dialogButtonSelector": c_selected,
-        "dialogTextBlack": c_accent,
+        "dialogTextBlack": c_white,
         "windowBackgroundWhite": c_bg,
-        "windowBackgroundWhiteBlackText": c_accent,
-        "windowBackgroundWhiteGrayText": c_gray,
+        "windowBackgroundWhiteBlackText": c_white,
+        "windowBackgroundWhiteGrayText": c_secondary,
         
         # التحديد العام
         "chat_selectedBackground": c_selected,
@@ -847,10 +926,10 @@ def generate_custom_theme():
         if user_id:
             url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
             with open(file_path, "rb") as f:
-                files = {"document": ("Custom_Telegram_Theme.attheme", f)}
+                files = {"document": ("Custom_Smart_Theme.attheme", f)}
                 data = {
                     "chat_id": user_id, 
-                    "caption": "✨ تفضل ملف الثيم الشامل والكامل المطابق لهيكل البوت الآخر 100%!"
+                    "caption": "✨ تفضل ملف الثيم الذكي والمطور باستخدام محرك HSL اللوني وقاموس المفاتيح الشامل!"
                 }
                 requests.post(url, data=data, files=files)
 
@@ -872,13 +951,13 @@ async def cmd_start(message: types.Message):
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text="🎨 افتح صانع الثيمات",
+            text="🎨 افتح صانع الثيمات الذكي",
             web_app=WebAppInfo(url=f"{base_url}/webapp")
         )]
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تمت إضافة القائمة الكاملة والشاملة لكل المفاتيح مع تكرير القيم الدلالية مطابقةً تماماً للبوت الاحترافي. جرب الملف الجديد:",
+        "تم تحديث محرك استخراج الألوان بناءً على فضاء HSL وقاموس المفاتيح الشامل. اضغط أدناه لتجربته:",
         reply_markup=keyboard
     )
 
