@@ -104,6 +104,11 @@ input[type=color] {
     border: none; width: 48px; height: 34px;
     border-radius: 8px; cursor: pointer; background: none;
 }
+input[type=text] {
+    width: 100%; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.2); background: rgba(0,0,0,.2);
+    color: var(--text-color); font-size: 13px; outline: none;
+}
 input[type=range] {
     width: 100%; accent-color: var(--accent-color); margin-top: 8px;
 }
@@ -277,6 +282,12 @@ input[type=range] {
 </div>
 
 <div class="controls">
+    <!-- حقل Chat ID الاحتياطي يظهر تلقائياً إذا لم يتعرف البوت على المستخدم -->
+    <div class="control-group" id="chatIdContainer" style="display:none; flex-direction:column; align-items:flex-start;">
+        <label for="manualChatId">معرف تيليجرام الخاص بك (Chat ID):</label>
+        <input type="text" id="manualChatId" placeholder="مثال: 123456789">
+    </div>
+
     <div class="control-group">
         <label for="accentColor">اللون الأساسي / الأيقونات</label>
         <input type="color" id="accentColor" value="#38bdf8">
@@ -320,6 +331,13 @@ if (tg) {
 
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
+
+let telegramUserId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+
+// إذا لم يتم جلب المعرف تلقائياً (مثلاً عند الفتح من المتصفح العادي)، أظهر حقل الإدخال اليدوي
+if (!telegramUserId) {
+    $('chatIdContainer').style.display = 'flex';
+}
 
 function updatePreview() {
     const bg = $('bgColor').value;
@@ -483,7 +501,10 @@ $('imageInput').addEventListener('change', function(event) {
 });
 
 function currentThemeData() {
-    let userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+    let userId = telegramUserId;
+    if (!userId && $('manualChatId')) {
+        userId = $('manualChatId').value.trim();
+    }
     return {
         bg: $('bgColor').value,
         card: $('cardColor').value,
@@ -514,14 +535,11 @@ $('copyButton').addEventListener('click', async function() {
 });
 
 $('downloadButton').addEventListener('click', async function() {
-    let data = currentThemeData();
+    const data = currentThemeData();
     if (!data.user_id) {
-        let inputId = prompt("أنت تختبر الواجهة من المتصفح العادي. أدخل معرف تيليجرام الخاص بك (Chat ID) لتلقي ملف الثيم:");
-        if (!inputId) {
-            setStatus('⚠️ يجب توفر معرف تيليجرام (Chat ID) لإرسال الملف.');
-            return;
-        }
-        data.user_id = inputId;
+        setStatus('⚠️ يرجى إدخال معرف تيليجرام (Chat ID) أولاً.');
+        $('chatIdContainer').style.display = 'flex';
+        return;
     }
 
     $('downloadButton').disabled = true;
@@ -536,7 +554,7 @@ $('downloadButton').addEventListener('click', async function() {
         const resJson = await response.json();
         if (resJson.success) {
             setStatus('✅ تم إرسال ملف الثيم إلى محادثتك في البوت بنجاح!');
-            setTimeout(() => { if (tg) tg.close(); }, 2000);
+            setTimeout(() => { if (tg && typeof tg.close === 'function') tg.close(); }, 2000);
         } else {
             setStatus('❌ فشل في إرسال الملف.');
         }
@@ -947,7 +965,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم تحديث محرك استخراج الألوان وقاموس المفاتيح الشامل وإصلاح الأزرار بالكامل. اضغط أدناه لتجربته:",
+        "تم إصلاح أزرار الإرسال وتجنب مشاكل المتصفح بالكامل. اضغط أدناه لتجربته:",
         reply_markup=keyboard
     )
 
