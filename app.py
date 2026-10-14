@@ -3,7 +3,7 @@ import logging
 import asyncio
 import threading
 import requests
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template_string, request, jsonify, Response
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
@@ -118,6 +118,7 @@ input[type=range] {
     flex:1; background:var(--accent-color); color:#0f172a;
     border:none; padding:12px 9px; border-radius:12px;
     font-size:13px; font-weight:bold; cursor:pointer;
+    text-align: center; text-decoration: none; display: inline-block;
 }
 .btn.secondary { background:rgba(255,255,255,.1); color:var(--text-color); }
 .status { font-size:12px; text-align:center; color: var(--accent-color); margin-top:10px; font-weight: bold; word-break: break-all; }
@@ -316,7 +317,10 @@ input[type=range] {
     </div>
     <div class="btn-row">
         <button class="btn secondary" id="copyButton" type="button">📋 نسخ الأكواد</button>
-        <button class="btn" id="downloadButton" type="button">📥 توليد وإرسال الثيم للبوت</button>
+        <a class="btn" id="downloadDirectBtn" href="#" target="_blank">📥 تحميل الثيم مباشرة</a>
+    </div>
+    <div class="btn-row" style="margin-top:10px;">
+        <button class="btn" id="sendTelegramBtn" type="button">🚀 إرسال الثيم إلى البوت</button>
     </div>
     <div class="status" id="statusMessage" role="status"></div>
 </div>
@@ -352,6 +356,16 @@ function updatePreview() {
     root.style.setProperty('--secondary-color', secondary);
     root.style.setProperty('--ui-opacity', opacity);
     $('opacityVal').textContent = Math.round(opacity * 100);
+
+    const params = new URLSearchParams({
+        bg: bg,
+        card: card,
+        accent: accent,
+        outgoing: outgoing,
+        secondary: secondary,
+        opacity: $('opacityRange').value
+    });
+    $('downloadDirectBtn').href = '/download-theme?' + params.toString();
 }
 
 ['accentColor', 'bgColor', 'cardColor', 'outColor', 'secondaryColor', 'opacityRange']
@@ -532,7 +546,7 @@ $('copyButton').addEventListener('click', async function() {
     }
 });
 
-$('downloadButton').addEventListener('click', async function() {
+$('sendTelegramBtn').addEventListener('click', async function() {
     const data = currentThemeData();
     if (!data.user_id) {
         setStatus('⚠️ يرجى إدخال معرف تيليجرام (Chat ID) أولاً.');
@@ -540,8 +554,8 @@ $('downloadButton').addEventListener('click', async function() {
         return;
     }
 
-    $('downloadButton').disabled = true;
-    setStatus('⏳ جارٍ توليد الثيم وإرساله إلى دردشتك...');
+    $('sendTelegramBtn').disabled = true;
+    setStatus('⏳ جارٍ إرسال الثيم إلى دردشتك في البوت...');
 
     try {
         const response = await fetch('/generate-custom-theme', {
@@ -554,14 +568,18 @@ $('downloadButton').addEventListener('click', async function() {
             setStatus('✅ تم إرسال ملف الثيم إلى محادثتك في البوت بنجاح!');
             setTimeout(() => { if (tg && typeof tg.close === 'function') tg.close(); }, 2000);
         } else {
-            setStatus('❌ فشل: ' + (resJson.error || 'خطأ غير معروف'));
+            setStatus('❌ فشل الإرسال: ' + (resJson.error || 'خطأ غير معروف'));
         }
     } catch (error) {
-        setStatus('❌ خطأ في الاتصال بالسيرفر: ' + error.message);
+        setStatus('❌ خطأ في الاتصال: ' + error.message);
     } finally {
-        $('downloadButton').disabled = false;
+        $('sendTelegramBtn').disabled = false;
     }
 });
+
+function setStatus(msg) {
+    $('statusMessage').textContent = msg;
+}
 
 updatePreview();
 </script>
@@ -579,25 +597,7 @@ def hex_to_signed_int(hex_str, alpha=255):
         value -= 0x100000000
     return value
 
-@app.route("/")
-def home():
-    return "Advanced Telegram Theme Mini App is running."
-
-@app.route("/webapp")
-def webapp():
-    return render_template_string(HTML_TEMPLATE)
-
-@app.route("/generate-custom-theme", methods=["POST"])
-def generate_custom_theme():
-    req_data = request.get_json(silent=True) or {}
-    bg_hex = req_data.get("bg", "#0f172a")
-    card_hex = req_data.get("card", "#1e293b")
-    accent_hex = req_data.get("accent", "#38bdf8")
-    outgoing_hex = req_data.get("outgoing", "#0284c7")
-    secondary_hex = req_data.get("secondary", "#B997D0")
-    opacity_val = int(req_data.get("opacity", 90))
-    user_id = req_data.get("user_id")
-
+def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val):
     bubble_alpha = round((opacity_val / 100.0) * 255)
 
     c_bg = hex_to_signed_int(bg_hex)
@@ -612,6 +612,7 @@ def generate_custom_theme():
     c_white = -1
     c_selected = hex_to_signed_int("#334155")
 
+    # القاموس الشامل الكامل والأساسي للثيم
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -917,7 +918,47 @@ def generate_custom_theme():
         "chat_linkSelectBackground": c_selected,
     }
 
-    file_content = "\n".join(f"{key}={value}" for key, value in theme_keys.items()) + "\n"
+    return "\n".join(f"{key}={value}" for key, value in theme_keys.items()) + "\n"
+
+@app.route("/")
+def home():
+    return "Advanced Telegram Theme Mini App is running."
+
+@app.route("/webapp")
+def webapp():
+    return render_template_string(HTML_TEMPLATE)
+
+@app.route("/download-theme", methods=["GET"])
+def download_theme():
+    bg_hex = request.args.get("bg", "#0f172a")
+    card_hex = request.args.get("card", "#1e293b")
+    accent_hex = request.args.get("accent", "#38bdf8")
+    outgoing_hex = request.args.get("outgoing", "#0284c7")
+    secondary_hex = request.args.get("secondary", "#B997D0")
+    opacity_val = int(request.args.get("opacity", 90))
+
+    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
+    return Response(
+        file_content,
+        mimetype="text/plain",
+        headers={"Content-Disposition": "attachment;filename=Custom_Smart_Theme.attheme"}
+    )
+
+@app.route("/generate-custom-theme", methods=["POST"])
+def generate_custom_theme():
+    req_data = request.get_json(silent=True) or {}
+    bg_hex = req_data.get("bg", "#0f172a")
+    card_hex = req_data.get("card", "#1e293b")
+    accent_hex = req_data.get("accent", "#38bdf8")
+    outgoing_hex = req_data.get("outgoing", "#0284c7")
+    secondary_hex = req_data.get("secondary", "#B997D0")
+    opacity_val = int(req_data.get("opacity", 90))
+    user_id = req_data.get("user_id")
+
+    if not user_id:
+        return jsonify({"success": False, "error": "معرف تيليجرام غير متوفر. يرجى إدخاله يدويًا."}), 400
+
+    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
     
     import tempfile
     handle = tempfile.NamedTemporaryFile(
@@ -929,23 +970,20 @@ def generate_custom_theme():
         handle.write(file_content)
         handle.close()
 
-        if user_id:
-            url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
-            with open(file_path, "rb") as f:
-                files = {"document": ("Custom_Smart_Theme.attheme", f)}
-                data = {
-                    "chat_id": user_id, 
-                    "caption": "✨ تفضل ملف الثيم الذكي والمطور باستخدام محرك HSL اللوني وقاموس المفاتيح الشامل!"
-                }
-                resp = requests.post(url, data=data, files=files)
-                if not resp.ok:
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                    try:
-                        err_desc = resp.json().get("description", resp.text)
-                    except:
-                        err_desc = resp.text
-                    return jsonify({"success": False, "error": err_desc}), 400
+        url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
+        with open(file_path, "rb") as f:
+            files = {"document": ("Custom_Smart_Theme.attheme", f)}
+            data = {
+                "chat_id": user_id, 
+                "caption": "✨ تفضل ملف الثيم الذكي بكامل مفاتيحه وخوارزميته الأصلية!"
+            }
+            resp = requests.post(url, data=data, files=files)
+            if not resp.ok:
+                try:
+                    err_desc = resp.json().get("description", resp.text)
+                except:
+                    err_desc = resp.text
+                return jsonify({"success": False, "error": err_desc}), 400
 
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -971,7 +1009,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم إصلاح الخطأ البرمجي وبدء التشغيل بنجاح. اضغط أدناه لتجربته:",
+        "تمت استعادة القاموس والمفاتيح الكاملة بالكامل. اضغط أدناه لتجربته:",
         reply_markup=keyboard
     )
 
