@@ -1218,4 +1218,73 @@ def generate_custom_theme():
     if not user_id:
         return jsonify({"success": False, "error": "معرف تيليجرام غير متوفر."}), 400
 
-    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex
+    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
+    
+    import tempfile
+    handle = tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", suffix=".attheme", prefix="custom_theme_", delete=False
+    )
+    file_path = handle.name
+    
+    try:
+        handle.write(file_content)
+        handle.close()
+
+        url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
+        with open(file_path, "rb") as f:
+            files = {"document": ("Custom_Smart_Theme.attheme", f)}
+            data = {
+                "chat_id": user_id, 
+                "caption": "✨ تفضل ملف الثيم الشامل بكافة مفاتيحه دون أي نقص وبخوارزمية مطابقة تماماً!"
+            }
+            resp = requests.post(url, data=data, files=files)
+            if not resp.ok:
+                try:
+                    err_desc = resp.json().get("description", resp.text)
+                except:
+                    err_desc = resp.text
+                return jsonify({"success": False, "error": err_desc}), 400
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return jsonify({"success": True})
+    except Exception as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    base_url = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
+    if not base_url:
+        await message.answer("عذراً، رابط الخدمة غير مضبوط على Render.")
+        return
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(
+            text="🎨 افتح صانع الثيمات الذكي",
+            web_app=WebAppInfo(url=f"{base_url}/webapp")
+        )]
+    ])
+    await message.answer(
+        "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
+        "تم إصلاح مشكلة معاينة الصور وكافة المفاتيح بنجاح:",
+        reply_markup=keyboard
+    )
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, use_reloader=False, threaded=True)
+
+async def main():
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+    logging.info("Flask Mini App and Telegram bot are starting.")
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
