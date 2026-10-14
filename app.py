@@ -2,8 +2,8 @@ import os
 import logging
 import asyncio
 import threading
-from flask import Flask, render_template_string, request, send_file
-from aiogram import Bot, Dispatcher, F, types
+from flask import Flask, render_template_string, request, send_file, jsonify
+from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
@@ -14,408 +14,677 @@ if not TOKEN:
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-
 app = Flask(__name__)
 
-# تصميم واجهة الـ Mini App المتطورة والفاخرة
-HTML_TEMPLATE = """
-<!DOCTYPE html>
+HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صانع الثيمات الديناميكي المتطور</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-color: #1e293b;
-            --accent-color: #38bdf8;
-            --bubble-out: #0284c7;
-            --text-color: #f8fafc;
-            --gray-text: #94a3b8;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 15px;
-            transition: background 0.3s, color 0.3s;
-        }
-        h2 { text-align: center; margin-bottom: 15px; font-size: 22px; color: var(--accent-color); }
-        
-        /* زر رفع الصورة الاحترافي */
-        .upload-box {
-            border: 2px dashed var(--accent-color);
-            background: rgba(56, 189, 248, 0.05);
-            padding: 15px;
-            text-align: center;
-            border-radius: 14px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            transition: 0.2s;
-        }
-        .upload-box:hover { background: rgba(56, 189, 248, 0.1); }
-        .upload-box input { display: none; }
-
-        /* معاينة واجهة تيليجرام الحية */
-        .preview-container {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .phone-mockup {
-            width: 48%;
-            background: var(--card-color);
-            border-radius: 18px;
-            padding: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-            font-size: 10px;
-        }
-        .screen-header {
-            background: var(--accent-color);
-            color: #fff;
-            padding: 8px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-weight: bold;
-            text-align: center;
-        }
-        .chat-bubble {
-            background: rgba(255,255,255,0.08);
-            padding: 8px 10px;
-            border-radius: 12px;
-            margin-bottom: 6px;
-            max-width: 85%;
-        }
-        .chat-bubble.out {
-            background: var(--bubble-out);
-            margin-right: auto;
-        }
-
-        /* لوحة التحكم والألوان */
-        .controls {
-            background: rgba(255, 255, 255, 0.04);
-            padding: 15px;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .control-group {
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        label { font-size: 13px; font-weight: 600; color: var(--gray-text); }
-        input[type="color"] {
-            border: none;
-            width: 45px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: none;
-        }
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent-color);
-            margin-top: 5px;
-        }
-        
-        .palette-preview {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        .color-dot {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-
-        /* الأزرار النهائية */
-        .btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn {
-            flex: 1;
-            background: var(--accent-color);
-            color: #0f172a;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
-        }
-        .btn.secondary {
-            background: rgba(255,255,255,0.1);
-            color: var(--text-color);
-        }
-        .btn:active { transform: scale(0.97); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#0f172a">
+<title>صانع ثيمات تيليجرام</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+    /* احتفظنا بالقيم الأصلية، وأضفنا متغيرات SVG الضرورية فقط */
+    --bg-color: #0f172a;
+    --card-color: #1e293b;
+    --accent-color: #38bdf8;
+    --bubble-out: #0284c7;
+    --incoming-color: #B997D0;
+    --wallpaper-top: #0B0E2C;
+    --wallpaper-mid: #182046;
+    --wallpaper-bottom: #0E1738;
+    --text-color: #f8fafc;
+    --gray-text: #94a3b8;
+    --ui-opacity: .90;
+}
+* { box-sizing: border-box; }
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 15px;
+    transition: background .25s, color .25s;
+}
+h2 {
+    text-align: center;
+    margin: 5px 0 15px;
+    font-size: 21px;
+    color: var(--accent-color);
+}
+.upload-box {
+    display: block;
+    border: 2px dashed var(--accent-color);
+    background: rgba(56,189,248,.05);
+    padding: 15px;
+    text-align: center;
+    border-radius: 14px;
+    cursor: pointer;
+    margin-bottom: 14px;
+}
+.upload-box input { display: none; }
+.svg-preview-container {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto 18px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    background: #0B0E2C;
+}
+#telegramPreview { display: block; width: 100%; height: auto; }
+.preview-note {
+    color: var(--gray-text);
+    font-size: 11px;
+    text-align: center;
+    margin: -8px 0 16px;
+}
+.palette-preview {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 10px 0 16px;
+    flex-wrap: wrap;
+}
+.color-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.25);
+}
+.controls {
+    background: rgba(255,255,255,.04);
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.07);
+}
+.control-group {
+    margin-bottom: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+label { font-size: 13px; font-weight: 600; color: var(--gray-text); }
+input[type=color] {
+    border: none; width: 48px; height: 34px;
+    border-radius: 8px; cursor: pointer; background: none;
+}
+input[type=range] {
+    width: 100%; accent-color: var(--accent-color); margin-top: 8px;
+}
+.range-label { display:flex; justify-content:space-between; gap:8px; }
+.btn-row { display:flex; gap:10px; margin-top:16px; }
+.btn {
+    flex:1; background:var(--accent-color); color:#0f172a;
+    border:none; padding:12px 9px; border-radius:12px;
+    font-size:13px; font-weight:bold; cursor:pointer;
+}
+.btn.secondary { background:rgba(255,255,255,.1); color:var(--text-color); }
+.status { font-size:12px; text-align:center; color:var(--gray-text); margin-top:10px; }
+@media (max-width: 380px) {
+    body { padding: 10px; }
+    .btn-row { flex-direction: column; }
+}
+</style>
 </head>
 <body>
+<h2>🎨 صانع ثيمات تيليجرام</h2>
 
-    <h2>🎨 صانع الثيمات الديناميكي المتطور</h2>
+<label class="upload-box">
+    📁 اضغط لاختيار صورة واستخراج لوحة ألوان أولية
+    <input type="file" id="imageInput" accept="image/*">
+</label>
 
-    <!-- رفع الصورة -->
-    <label class="upload-box">
-        📁 <b>اضغط هنا لاختيار صورة وتحليل ألوانها بدقة</b>
-        <input type="file" id="imageInput" accept="image/*" onchange="processImage(event)">
-    </label>
+<div class="svg-preview-container">
+<svg id="telegramPreview" xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1080 1080" role="img" aria-label="معاينة ثيم تيليجرام">
+<defs>
+    <linearGradient id="previewBg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#2D223B"/>
+        <stop offset="50%" stop-color="var(--bg-color)"/>
+        <stop offset="100%" stop-color="#0B0E2C"/>
+    </linearGradient>
+    <linearGradient id="previewWallpaper" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--wallpaper-top)"/>
+        <stop offset="50%" stop-color="var(--wallpaper-mid)"/>
+        <stop offset="100%" stop-color="var(--wallpaper-bottom)"/>
+    </linearGradient>
+    <linearGradient id="previewAvatar" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="var(--accent-color)"/>
+        <stop offset="100%" stop-color="var(--card-color)"/>
+    </linearGradient>
+    <filter id="previewShadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+    <clipPath id="leftClip"><rect width="420" height="910" rx="48"/></clipPath>
+    <clipPath id="rightClip"><rect width="420" height="910" rx="48"/></clipPath>
+</defs>
+<rect width="1080" height="1080" fill="url(#previewBg)"/>
 
-    <!-- المعاينة الحية -->
-    <div class="preview-container">
-        <div class="phone-mockup" id="mockupChat" style="background-color: var(--bg-color);">
-            <div class="screen-header" id="headerPrev">معاينة المحادثة</div>
-            <div class="chat-bubble" style="color: var(--text-color);">أهلاً بك! هذه معاينة للرسائل الواردة.</div>
-            <div class="chat-bubble out" style="background-color: var(--bubble-out); color: var(--text-color);">هنا تظهر عينة اللون الأساسي للثيم.</div>
-        </div>
-        <div class="phone-mockup" id="mockupList" style="background-color: var(--bg-color);">
-            <div class="screen-header" id="headerPrev2">القائمة الرئيسية</div>
-            <div class="chat-bubble" style="font-size: 9px; color: var(--gray-text);">لوحة الألوان المستخرجة ستظهر هنا بالكامل بعد رفع الصورة...</div>
-        </div>
+<!-- الهاتف الأيسر: شاشة محادثة -->
+<g transform="translate(75 75)" filter="url(#previewShadow)">
+<rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
+<g clip-path="url(#leftClip)">
+<rect width="420" height="910" fill="url(#previewWallpaper)"/>
+<path d="M0 650 Q120 580 240 680 T420 620 V910 H0Z" fill="#0A122B" opacity=".75"/>
+<path d="M0 720 Q160 640 310 750 T420 700 V910 H0Z" fill="#060A1B" opacity=".8"/>
+<circle cx="280" cy="490" r="25" fill="#FFF8D6" opacity=".8"/>
+<circle cx="292" cy="480" r="23" fill="var(--wallpaper-mid)"/>
+<rect width="420" height="95" fill="var(--bg-color)"/>
+<circle cx="50" cy="55" r="12" fill="var(--accent-color)"/>
+<rect x="75" y="45" width="110" height="12" rx="6" fill="var(--text-color)"/>
+<rect x="75" y="63" width="60" height="8" rx="4" fill="var(--incoming-color)"/>
+<circle cx="375" cy="55" r="10" fill="var(--accent-color)"/>
+
+<g transform="translate(220 125)">
+<rect width="170" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="17" width="110" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(30 185)">
+<rect width="210" height="70" rx="16" fill="var(--card-color)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="14" width="3" height="42" rx="1.5" fill="var(--accent-color)"/>
+<rect x="26" y="18" width="80" height="8" rx="4" fill="var(--text-color)"/>
+<rect x="26" y="34" width="140" height="8" rx="4" fill="var(--incoming-color)"/>
+</g>
+<g transform="translate(200 270)">
+<rect width="190" height="45" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="18" width="130" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(140 385)">
+<rect width="250" height="68" rx="20" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<circle cx="35" cy="34" r="20" fill="var(--accent-color)"/>
+<g fill="var(--text-color)">
+<rect x="70" y="30" width="3" height="10" rx="1.5"/><rect x="77" y="22" width="3" height="24" rx="1.5"/>
+<rect x="84" y="18" width="3" height="32" rx="1.5"/><rect x="91" y="26" width="3" height="16" rx="1.5"/>
+<rect x="98" y="20" width="3" height="28" rx="1.5"/>
+</g>
+<g fill="var(--incoming-color)">
+<rect x="105" y="28" width="3" height="12" rx="1.5"/><rect x="112" y="23" width="3" height="22" rx="1.5"/>
+<rect x="119" y="19" width="3" height="30" rx="1.5"/><rect x="126" y="25" width="3" height="18" rx="1.5"/>
+<rect x="133" y="30" width="3" height="8" rx="1.5"/><rect x="140" y="22" width="3" height="24" rx="1.5"/>
+<rect x="147" y="27" width="3" height="14" rx="1.5"/><rect x="154" y="31" width="3" height="6" rx="1.5"/>
+</g>
+<rect x="70" y="50" width="45" height="4" rx="2" fill="var(--accent-color)"/>
+</g>
+<g transform="translate(30 500)">
+<rect width="210" height="72" rx="18" fill="var(--card-color)" opacity="var(--ui-opacity)"/>
+<circle cx="30" cy="36" r="16" fill="var(--accent-color)"/>
+<rect x="56" y="22" width="100" height="8" rx="4" fill="var(--text-color)"/>
+<rect x="56" y="38" width="70" height="8" rx="4" fill="var(--incoming-color)"/>
+<circle cx="30" cy="36" r="5" fill="var(--bg-color)"/>
+</g>
+<g transform="translate(200 585)">
+<rect width="190" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="17" width="140" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(200 635)">
+<rect width="190" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="17" width="110" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(0 830)">
+<rect width="420" height="80" fill="var(--bg-color)"/>
+<circle cx="35" cy="40" r="14" fill="var(--accent-color)"/>
+<rect x="65" y="22" width="220" height="36" rx="18" fill="var(--card-color)"/>
+<circle cx="340" cy="40" r="14" fill="var(--accent-color)"/>
+<circle cx="385" cy="40" r="14" fill="var(--accent-color)"/>
+</g>
+</g></g>
+
+<!-- الهاتف الأيمن: قائمة المحادثات -->
+<g transform="translate(585 120)" filter="url(#previewShadow)">
+<rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
+<g clip-path="url(#rightClip)">
+<rect width="420" height="910" fill="var(--bg-color)"/>
+<rect width="420" height="110" fill="var(--bg-color)"/>
+<circle cx="45" cy="40" r="10" fill="var(--accent-color)"/>
+<rect x="75" y="34" width="100" height="12" rx="6" fill="var(--text-color)"/>
+<circle cx="345" cy="40" r="10" fill="var(--accent-color)"/>
+<circle cx="380" cy="40" r="10" fill="var(--accent-color)"/>
+<circle cx="45" cy="85" r="8" fill="var(--accent-color)"/>
+<rect x="65" y="81" width="70" height="8" rx="4" fill="var(--incoming-color)"/>
+<circle cx="345" cy="85" r="8" fill="var(--accent-color)"/>
+<circle cx="380" cy="85" r="8" fill="var(--accent-color)"/>
+
+<g transform="translate(0 130)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="75" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="75" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+<circle cx="370" cy="46" r="6" fill="var(--accent-color)"/>
+</g>
+<g transform="translate(0 215)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="95" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="60" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 300)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="105" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="70" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<circle cx="368" cy="42" r="9" fill="var(--card-color)"/>
+</g>
+<g transform="translate(0 385)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="60" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="170" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 470)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<circle cx="68" cy="58" r="6" fill="var(--bg-color)"/>
+<circle cx="68" cy="58" r="4" fill="var(--accent-color)"/>
+<rect x="95" y="24" width="85" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="50" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 555)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="90" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="75" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 640)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="80" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="60" height="9" rx="4.5" fill="var(--incoming-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 725)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)" opacity=".6"/>
+<rect x="95" y="24" width="100" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="55" height="9" rx="4.5" fill="var(--incoming-color)"/>
+</g>
+<g transform="translate(325 785)">
+<circle cx="36" cy="36" r="32" fill="var(--accent-color)"/>
+<circle cx="36" cy="36" r="14" fill="var(--bg-color)" opacity=".9"/>
+</g>
+</g></g>
+</svg>
+</div>
+<div class="preview-note">معاينة رسومية توضيحية، وليست لقطة فعلية من تطبيق تيليجرام.</div>
+
+<div style="text-align:center;font-size:12px;color:var(--gray-text)">لوحة الألوان الحالية</div>
+<div class="palette-preview" id="palettePreview">
+    <div class="color-dot" style="background:#38bdf8"></div>
+    <div class="color-dot" style="background:#0284c7"></div>
+    <div class="color-dot" style="background:#1e293b"></div>
+    <div class="color-dot" style="background:#0f172a"></div>
+</div>
+
+<div class="controls">
+    <div class="control-group">
+        <label for="accentColor">اللون الأساسي / الأيقونات</label>
+        <input type="color" id="accentColor" value="#38bdf8">
     </div>
-
-    <!-- لوحة الألوان المستخرجة -->
-    <div style="text-align:center; font-size:12px; margin-bottom:8px; color:var(--gray-text);">لوحة الألوان المستخرجة بالكامل:</div>
-    <div class="palette-preview" id="palettePreview">
-        <div class="color-dot" style="background: #38bdf8;"></div>
-        <div class="color-dot" style="background: #0284c7;"></div>
-        <div class="color-dot" style="background: #1e293b;"></div>
-        <div class="color-dot" style="background: #0f172a;"></div>
+    <div class="control-group">
+        <label for="bgColor">لون خلفية التطبيق</label>
+        <input type="color" id="bgColor" value="#0f172a">
     </div>
-
-    <!-- لوحة التحكم اليدوي -->
-    <div class="controls">
-        <div class="control-group">
-            <label>اللون الأساسي (Primary):</label>
-            <input type="color" id="accentColor" value="#38bdf8" oninput="updatePreview()">
-        </div>
-        <div class="control-group">
-            <label>لون الخلفية (Background):</label>
-            <input type="color" id="bgColor" value="#0f172a" oninput="updatePreview()">
-        </div>
-        <div class="control-group">
-            <label>لون البطاقات / الرسائل:</label>
-            <input type="color" id="cardColor" value="#1e293b" oninput="updatePreview()">
-        </div>
-        <div style="margin-top: 10px;">
-            <label>شفافية الواجهة: <span id="opacityVal">90</span>%</label>
-            <input type="range" id="opacityRange" min="50" max="100" value="90" oninput="updatePreview()">
-        </div>
-
-        <div class="btn-row">
-            <button class="btn secondary" onclick="copyCodes()">📋 نسخ الأكواد</button>
-            <button class="btn" onclick="generateAndSendTheme()">📥 تحميل ملف الثيم</button>
-        </div>
+    <div class="control-group">
+        <label for="cardColor">لون الرسائل الواردة والبطاقات</label>
+        <input type="color" id="cardColor" value="#1e293b">
     </div>
+    <div class="control-group">
+        <label for="outColor">لون الرسائل الصادرة</label>
+        <input type="color" id="outColor" value="#0284c7">
+    </div>
+    <div class="control-group">
+        <label for="incomingTextColor">لون تفاصيل الرسائل الواردة</label>
+        <input type="color" id="incomingTextColor" value="#B997D0">
+    </div>
+    <div>
+        <div class="range-label">
+            <label for="opacityRange">شفافية فقاعات الرسائل</label>
+            <label><span id="opacityVal">90</span>%</label>
+        </div>
+        <input type="range" id="opacityRange" min="20" max="100" value="90">
+    </div>
+    <div class="btn-row">
+        <button class="btn secondary" id="copyButton" type="button">📋 نسخ أكواد الألوان</button>
+        <button class="btn" id="downloadButton" type="button">📥 تحميل ملف الثيم</button>
+    </div>
+    <div class="status" id="statusMessage" role="status"></div>
+</div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+<script>
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) {
+    tg.ready();
+    tg.expand();
+}
 
-        function updatePreview() {
-            let bg = document.getElementById('bgColor').value;
-            let card = document.getElementById('cardColor').value;
-            let accent = document.getElementById('accentColor').value;
-            let opacity = document.getElementById('opacityRange').value / 100;
+const $ = (id) => document.getElementById(id);
+const root = document.documentElement;
 
-            document.getElementById('opacityVal').innerText = Math.round(opacity * 100);
+function updatePreview() {
+    const bg = $('bgColor').value;
+    const card = $('cardColor').value;
+    const accent = $('accentColor').value;
+    const outgoing = $('outColor').value;
+    const incoming = $('incomingTextColor').value;
+    const opacity = Number($('opacityRange').value) / 100;
 
-            document.documentElement.style.setProperty('--bg-color', bg);
-            document.documentElement.style.setProperty('--card-color', card);
-            document.documentElement.style.setProperty('--accent-color', accent);
-            document.documentElement.style.setProperty('--bubble-out', accent);
-            
-            document.getElementById('mockupChat').style.backgroundColor = bg;
-            document.getElementById('mockupList').style.backgroundColor = bg;
-            document.getElementById('headerPrev').style.backgroundColor = accent;
-            document.getElementById('headerPrev2').style.backgroundColor = accent;
-        }
+    root.style.setProperty('--bg-color', bg);
+    root.style.setProperty('--card-color', card);
+    root.style.setProperty('--accent-color', accent);
+    root.style.setProperty('--bubble-out', outgoing);
+    root.style.setProperty('--incoming-color', incoming);
+    root.style.setProperty('--ui-opacity', opacity);
+    $('opacityVal').textContent = Math.round(opacity * 100);
+}
 
-        // تحليل الصورة مباشرة واستخراج الألوان
-        function processImage(event) {
-            let file = event.target.files[0];
-            if (!file) return;
+['accentColor', 'bgColor', 'cardColor', 'outColor', 'incomingTextColor', 'opacityRange']
+    .forEach(id => $(id).addEventListener('input', updatePreview));
 
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let img = new Image();
-                img.onload = function() {
-                    let canvas = document.createElement('canvas');
-                    let ctx = canvas.getContext('2d');
-                    canvas.width = 50;
-                    canvas.height = 50;
-                    ctx.drawImage(img, 0, 0, 50, 50);
+function rgbToHex(r, g, b) {
+    return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v)))
+        .toString(16).padStart(2, '0')).join('');
+}
+function hexToRgb(hex) {
+    const value = hex.replace('#', '');
+    return {
+        r: parseInt(value.slice(0, 2), 16),
+        g: parseInt(value.slice(2, 4), 16),
+        b: parseInt(value.slice(4, 6), 16)
+    };
+}
+function darken(hex, amount) {
+    const c = hexToRgb(hex);
+    return rgbToHex(c.r - amount, c.g - amount, c.b - amount);
+}
+function setStatus(message) {
+    $('statusMessage').textContent = message;
+}
 
-                    let imgData = ctx.getImageData(0, 0, 50, 50).data;
-                    let rSum = 0, gSum = 0, bSum = 0, count = 0;
+/* استخراج تقريبي للون المتوسط. هذه ليست خوارزمية تجميع ألوان متقدمة. */
+$('imageInput').addEventListener('change', function(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        setStatus('الملف المختار ليس صورة.');
+        return;
+    }
 
-                    for (let i = 0; i < imgData.length; i += 4) {
-                        rSum += imgData[i];
-                        gSum += imgData[i+1];
-                        bSum += imgData[i+2];
-                        count++;
-                    }
+    const reader = new FileReader();
+    reader.onerror = () => setStatus('تعذرت قراءة الصورة.');
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onerror = () => setStatus('تعذر فتح الصورة.');
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', {willReadFrequently: true});
+            canvas.width = 64;
+            canvas.height = 64;
+            ctx.drawImage(img, 0, 0, 64, 64);
+            const pixels = ctx.getImageData(0, 0, 64, 64).data;
+            let r = 0, g = 0, b = 0, count = 0;
 
-                    let r = Math.floor(rSum / count);
-                    let g = Math.floor(gSum / count);
-                    let b = Math.floor(bSum / count);
-
-                    // اشتقاق ألوان متناسقة داكنة
-                    let mainHex = rgbToHex(r, g, b);
-                    let darkBgHex = rgbToHex(Math.max(0, r-45), Math.max(0, g-45), Math.max(0, b-45));
-                    let cardHex = rgbToHex(Math.max(0, r-30), Math.max(0, g-30), Math.max(0, b-30));
-
-                    document.getElementById('accentColor').value = mainHex;
-                    document.getElementById('bgColor').value = darkBgHex;
-                    document.getElementById('cardColor').value = cardHex;
-
-                    // تحديث عينات الألوان
-                    document.getElementById('palettePreview').innerHTML = `
-                        <div class="color-dot" style="background: ${mainHex};"></div>
-                        <div class="color-dot" style="background: ${darkBgHex};"></div>
-                        <div class="color-dot" style="background: ${cardHex};"></div>
-                        <div class="color-dot" style="background: #ffffff;"></div>
-                    `;
-
-                    updatePreview();
-                }
-                img.src = e.target.result;
+            for (let i = 0; i < pixels.length; i += 4) {
+                if (pixels[i + 3] < 30) continue;
+                r += pixels[i]; g += pixels[i + 1]; b += pixels[i + 2];
+                count++;
             }
-            reader.readAsDataURL(file);
-        }
+            if (!count) {
+                setStatus('لم يتم العثور على بكسلات صالحة في الصورة.');
+                return;
+            }
 
-        function rgbToHex(r, g, b) {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        }
+            const avg = rgbToHex(r / count, g / count, b / count);
+            const darkBg = darken(avg, 45);
+            const card = darken(avg, 25);
+            const accent = avg;
 
-        function copyCodes() {
-            alert("تم نسخ أكواد الثيم بنجاح!");
-        }
+            $('accentColor').value = accent;
+            $('bgColor').value = darkBg;
+            $('cardColor').value = card;
+            $('outColor').value = accent;
+            $('incomingTextColor').value = '#B997D0';
 
-        function generateAndSendTheme() {
-            let data = {
-                bg: document.getElementById('bgColor').value,
-                card: document.getElementById('cardColor').value,
-                accent: document.getElementById('accentColor').value,
-                user_id: tg.initDataUnsafe?.user?.id || 12345
-            };
+            root.style.setProperty('--wallpaper-top', darkBg);
+            root.style.setProperty('--wallpaper-mid', card);
+            root.style.setProperty('--wallpaper-bottom', darken(avg, 65));
 
-            fetch('/generate-custom-theme', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.blob())
-            .then(blob => {
-                let url = window.URL.createObjectURL(blob);
-                let a = document.createElement('a');
-                a.href = url;
-                a.download = "Custom_Telegram_Theme.attheme";
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                tg.close();
-            });
+            $('palettePreview').innerHTML = [accent, darkBg, card, '#B997D0', '#FFFFFF']
+                .map(color => '<div class="color-dot" title="' + color +
+                    '" style="background:' + color + '"></div>').join('');
+
+            updatePreview();
+            setStatus('تم استخراج ألوان أولية من الصورة. يمكنك تعديل كل لون يدويًا.');
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+function currentThemeData() {
+    return {
+        bg: $('bgColor').value,
+        card: $('cardColor').value,
+        accent: $('accentColor').value,
+        outgoing: $('outColor').value,
+        incoming: $('incomingTextColor').value,
+        opacity: Number($('opacityRange').value),
+        user_id: tg && tg.initDataUnsafe && tg.initDataUnsafe.user
+            ? tg.initDataUnsafe.user.id : null
+    };
+}
+
+$('copyButton').addEventListener('click', async function() {
+    const d = currentThemeData();
+    const text = [
+        'Background=' + d.bg,
+        'Card=' + d.card,
+        'Accent=' + d.accent,
+        'Outgoing=' + d.outgoing,
+        'Incoming detail=' + d.incoming,
+        'Opacity=' + d.opacity + '%'
+    ].join('\\n');
+
+    try {
+        await navigator.clipboard.writeText(text);
+        setStatus('تم نسخ أكواد الألوان.');
+    } catch (error) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        const ok = document.execCommand('copy');
+        area.remove();
+        setStatus(ok ? 'تم نسخ أكواد الألوان.' : 'تعذر النسخ تلقائيًا؛ انسخ القيم يدويًا.');
+    }
+});
+
+$('downloadButton').addEventListener('click', async function() {
+    const data = currentThemeData();
+    $('downloadButton').disabled = true;
+    setStatus('جارٍ تجهيز ملف الثيم...');
+
+    try {
+        const response = await fetch('/generate-custom-theme', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const message = await response.text();
+            throw new Error(message || 'فشل إنشاء الملف');
         }
-    </script>
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Advanced_Telegram_Theme.attheme';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        setStatus('تم تنزيل ملف الثيم. اختبره في تيليجرام؛ توافق المفاتيح يختلف حسب إصدار التطبيق.');
+    } catch (error) {
+        console.error(error);
+        setStatus('تعذر إنشاء الملف. تحقق من اتصال الواجهة بالخادم.');
+    } finally {
+        $('downloadButton').disabled = false;
+    }
+});
+
+updatePreview();
+</script>
 </body>
-</html>
-"""
+</html>"""
+
 
 def hex_to_signed_int(hex_str):
-    hex_str = hex_str.lstrip('#')
-    r, g, b = int(hex_str[0:2], 16), int(hex_str[2:4], 16), int(hex_str[4:6], 16)
-    val = (255 << 24) | (r << 16) | (g << 8) | b
-    if val > 0x7FFFFFFF:
-        val -= 0x100000000
-    return val
+    """Convert #RRGGBB to Telegram-style signed ARGB integer."""
+    hex_str = hex_str.strip().lstrip("#")
+    if len(hex_str) != 6:
+        raise ValueError("Expected a six-digit hex color")
+    r = int(hex_str[0:2], 16)
+    g = int(hex_str[2:4], 16)
+    b = int(hex_str[4:6], 16)
+    value = (255 << 24) | (r << 16) | (g << 8) | b
+    if value > 0x7FFFFFFF:
+        value -= 0x100000000
+    return value
+
+
+def safe_color(value, default):
+    if not isinstance(value, str):
+        return default
+    value = value.strip()
+    if len(value) == 7 and value.startswith("#"):
+        try:
+            int(value[1:], 16)
+            return value
+        except ValueError:
+            pass
+    return default
+
 
 @app.route("/")
 def home():
-    return "Advanced Telegram Theme Mini App is Running Live!"
+    return "Advanced Telegram Theme Mini App is running."
+
+
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
+
 
 @app.route("/webapp")
 def webapp():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route("/generate-custom-theme", methods=['POST'])
+
+@app.route("/generate-custom-theme", methods=["POST"])
 def generate_custom_theme():
-    req_data = request.get_json()
-    bg_hex = req_data.get('bg', '#0f172a')
-    card_hex = req_data.get('card', '#1e293b')
-    accent_hex = req_data.get('accent', '#38bdf8')
+    req_data = request.get_json(silent=True) or {}
 
-    c_dark_bg = hex_to_signed_int(bg_hex)
-    c_card_bg = hex_to_signed_int(card_hex)
+    bg_hex = safe_color(req_data.get("bg"), "#0f172a")
+    card_hex = safe_color(req_data.get("card"), "#1e293b")
+    accent_hex = safe_color(req_data.get("accent"), "#38bdf8")
+    outgoing_hex = safe_color(req_data.get("outgoing"), "#0284c7")
+    incoming_hex = safe_color(req_data.get("incoming"), "#B997D0")
+
+    c_bg = hex_to_signed_int(bg_hex)
+    c_card = hex_to_signed_int(card_hex)
     c_accent = hex_to_signed_int(accent_hex)
+    c_outgoing = hex_to_signed_int(outgoing_hex)
+    c_incoming = hex_to_signed_int(incoming_hex)
     c_white = -1
-    c_readable_gray = hex_to_signed_int("#94a3b8")
+    c_gray = hex_to_signed_int("#94a3b8")
 
+    # هذه مجموعة مفاتيح مبدئية؛ يلزم اختبار توافق كل مفتاح مع إصدار Telegram المستهدف.
     theme_keys = {
         "WallpaperFileOffset": -1,
-        "windowBackgroundWhite": c_dark_bg,
-        "windowBackgroundGray": c_dark_bg,
-        "dialogBackground": c_card_bg,
+        "windowBackgroundWhite": c_bg,
+        "windowBackgroundGray": c_bg,
+        "dialogBackground": c_card,
         "windowBackgroundWhiteBlackText": c_white,
-        "windowBackgroundWhiteGrayText": c_readable_gray,
+        "windowBackgroundWhiteGrayText": c_gray,
         "dialogTextBlack": c_white,
-        "actionBarDefault": c_accent,
-        "actionBarDefaultIcon": c_white,
+        "actionBarDefault": c_bg,
+        "actionBarDefaultIcon": c_accent,
         "actionBarDefaultTitle": c_white,
-        "chats_menuBackground": c_card_bg,
+        "chats_menuBackground": c_bg,
         "chats_name": c_white,
-        "chats_message": c_readable_gray,
-        "chat_inBubble": c_card_bg,
-        "chat_outBubble": c_accent,
+        "chats_message": c_gray,
+        "chat_inBubble": c_card,
+        "chat_outBubble": c_outgoing,
         "chat_messageTextIn": c_white,
         "chat_messageTextOut": c_white,
-        "dialogButton": c_accent
+        "dialogButton": c_accent,
     }
 
-    file_content = "\n".join([f"{k}={v}" for k, v in theme_keys.items()])
-    file_path = f"custom_theme_{req_data.get('user_id', 12345)}.attheme"
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(file_content)
+    file_content = "\n".join(f"{key}={value}" for key, value in theme_keys.items()) + "\n"
+    # ملف مؤقت فريد لكل طلب، مع تنظيفه بعد إرساله.
+    import tempfile
+    handle = tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", suffix=".attheme", prefix="custom_theme_", delete=False
+    )
+    file_path = handle.name
+    try:
+        handle.write(file_content)
+        handle.close()
+        response = send_file(
+            file_path,
+            as_attachment=True,
+            download_name="Advanced_Telegram_Theme.attheme",
+            mimetype="application/octet-stream",
+        )
+        response.call_on_close(lambda: os.path.exists(file_path) and os.remove(file_path))
+        return response
+    except Exception:
+        try:
+            handle.close()
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except OSError:
+            pass
+        raise
 
-    return send_file(file_path, as_attachment=True, download_name="Advanced_Telegram_Theme.attheme")
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    web_app_url = f"{os.environ.get('RENDER_EXTERNAL_URL', 'https://your-app-name.onrender.com')}/webapp"
+    base_url = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
+    if not base_url or not base_url.startswith("https://"):
+        await message.answer(
+            "البوت لم يُضبط بعد على رابط HTTPS عام. عيّن متغير RENDER_EXTERNAL_URL "
+            "إلى رابط تطبيقك المنشور على Render ثم أعد تشغيله."
+        )
+        return
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎨 افتح صانع الثيمات الديناميكي المتطور", web_app=WebAppInfo(url=web_app_url))]
+        [InlineKeyboardButton(
+            text="🎨 افتح صانع الثيمات",
+            web_app=WebAppInfo(url=f"{base_url}/webapp")
+        )]
     ])
     await message.answer(
-        "✨ أهلاً بك في بوت تصميم ثيمات تيليجرام المتطور!\n\n"
-        "اضغط على الزر بالأسفل لفتح الواجهة الاحترافية، اختر صورتك واستخرج الألوان بدقة تامة ومعاينة حية:",
+        "✨ أهلًا بك في صانع ثيمات تيليجرام.\n"
+        "افتح المعاينة، عدّل الألوان، ثم نزّل ملف الثيم.",
         reply_markup=keyboard
     )
 
+
 def run_flask():
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, use_reloader=False, threaded=True)
+
 
 async def main():
-    flask_thread = threading.Thread(target=run_flask)
-    flask_thread.daemon = True
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
-    
-    print("🤖 البوت والواجهة المتقدمة يعملان بكفاءة تامة...")
-    await dp.start_polling(bot)
+    logging.info("Flask Mini App and Telegram bot are starting.")
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
