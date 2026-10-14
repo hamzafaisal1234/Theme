@@ -414,6 +414,7 @@ function currentThemeData() {
         card: $('cardColor').value,
         accent: $('accentColor').value,
         outgoing: $('outColor').value,
+        opacity: Number($('opacityRange').value),
         user_id: tg && tg.initDataUnsafe && tg.initDataUnsafe.user
             ? tg.initDataUnsafe.user.id : null
     };
@@ -472,12 +473,12 @@ updatePreview();
 </html>"""
 
 
-def hex_to_signed_int(hex_str):
+def hex_to_signed_int(hex_str, alpha=255):
     hex_str = hex_str.strip().lstrip("#")
     r = int(hex_str[0:2], 16)
     g = int(hex_str[2:4], 16)
     b = int(hex_str[4:6], 16)
-    value = (255 << 24) | (r << 16) | (g << 8) | b
+    value = (alpha << 24) | (r << 16) | (g << 8) | b
     if value > 0x7FFFFFFF:
         value -= 0x100000000
     return value
@@ -497,104 +498,338 @@ def generate_custom_theme():
     card_hex = req_data.get("card", "#1e293b")
     accent_hex = req_data.get("accent", "#38bdf8")
     outgoing_hex = req_data.get("outgoing", "#0284c7")
+    opacity_val = int(req_data.get("opacity", 90))
     user_id = req_data.get("user_id")
+
+    alpha_channel = int((opacity_val / 100.0) * 255)
 
     c_bg = hex_to_signed_int(bg_hex)
     c_card = hex_to_signed_int(card_hex)
     c_accent = hex_to_signed_int(accent_hex)
     c_outgoing = hex_to_signed_int(outgoing_hex)
+    
+    # فقاعات شفافة تدعم التأثير الزجاجي (نفس منطق البوت الاحترافي ولكن بالألوان المخصصة)
+    c_bubble_in = hex_to_signed_int(card_hex, alpha=alpha_channel)
+    c_bubble_out = hex_to_signed_int(outgoing_hex, alpha=alpha_channel)
+    
     c_white = -1
     c_gray = hex_to_signed_int("#94a3b8")
-    c_incoming_text = hex_to_signed_int("#B997D0")
     c_selected = hex_to_signed_int("#334155")
 
-    # مفاتيح الثيم الشاملة والمطابقة بالكامل لهيكل البوت الاحترافي الناجح
+    # القائمة الشاملة والكاملة لجميع مفاتيح البوت الآخر بدقة تامة وتكرار دلالي موحد
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
         "windowBackgroundGray": c_bg,
+        "windowBackgroundGrayShadow": 0,
         "dialogBackground": c_card,
+        "dialogBackgroundGray": c_card,
         "windowBackgroundWhiteBlackText": c_white,
         "windowBackgroundWhiteGrayText": c_gray,
         "dialogTextBlack": c_white,
         
-        # صندوق كتابة الرسائل (Message Input Box) والشريط العلوي والقوائم
-        "chat_messagePanelBackground": c_card,
-        "chat_messagePanelText": c_white,
-        "chat_messagePanelHint": c_gray,
-        "chat_messagePanelIcons": c_accent,
-        "chat_messagePanelSend": c_accent,
-        "chat_messagePanelLine": c_card,
-        "actionBarDefaultSubmenuBackground": c_card,
-        "actionBarDefaultSubmenuItem": c_white,
-        "actionBarDefaultSubmenuItemIcon": c_accent,
-        "actionBarDefaultSubmenuItemText": c_white,
-        "chats_actionBackground": c_card,
-        "chats_actionText": c_white,
-        "profileActionBackground": c_accent,
-        
-        # العناوين والخلفيات والقوائم
+        # مجموعة ActionBar والعناوين والقوائم المنسدلة (تأخذ لون الخلفية والبطاقات والأيقونات)
+        "actionBarActionModeDefault": c_bg,
+        "actionBarActionModeDefaultIcon": c_accent,
+        "actionBarActionModeDefaultSelector": c_accent,
+        "actionBarActionModeDefaultTop": c_bg,
         "actionBarDefault": c_bg,
+        "actionBarDefaultArchived": c_bg,
+        "actionBarDefaultArchivedIcon": c_accent,
+        "actionBarDefaultArchivedSearch": c_accent,
+        "actionBarDefaultArchivedSelector": c_accent,
+        "actionBarDefaultArchivedTitle": c_accent,
         "actionBarDefaultIcon": c_accent,
+        "actionBarDefaultSearch": c_accent,
+        "actionBarDefaultSearchArchivedPlaceholder": c_accent,
+        "actionBarDefaultSearchPlaceholder": c_accent,
+        "actionBarDefaultSelector": c_accent,
+        "actionBarDefaultSubmenuBackground": c_card,
+        "actionBarDefaultSubmenuItem": c_accent,
+        "actionBarDefaultSubtitle": c_accent,
         "actionBarDefaultTitle": c_white,
-        "chats_menuBackground": c_bg,
-        "chats_name": c_white,
-        "chats_message": c_gray,
+        "actionBarWhiteSelector": c_gray,
         
-        # فقاعات المحادثة والرسائل والنصوص
-        "chat_inBubble": c_card,
-        "chat_outBubble": c_outgoing,
-        "chat_messageTextIn": c_white,
-        "chat_messageTextOut": c_white,
+        # مجموعة الأفاتار والرموز
+        "avatar_actionBarIconBlue": c_accent,
+        "avatar_actionBarIconCyan": c_accent,
+        "avatar_actionBarIconGreen": c_accent,
+        "avatar_actionBarIconOrange": c_accent,
+        "avatar_actionBarIconPink": c_accent,
+        "avatar_actionBarIconRed": c_accent,
+        "avatar_actionBarIconViolet": c_accent,
+        "avatar_actionBarSelectorBlue": c_accent,
+        "avatar_actionBarSelectorCyan": c_accent,
+        "avatar_actionBarSelectorGreen": c_accent,
+        "avatar_actionBarSelectorOrange": c_accent,
+        "avatar_actionBarSelectorPink": c_accent,
+        "avatar_actionBarSelectorRed": c_accent,
+        "avatar_actionBarSelectorViolet": c_accent,
+        "avatar_backgroundActionBarBlue": c_bg,
+        "avatar_backgroundActionBarCyan": c_bg,
+        "avatar_backgroundActionBarGreen": c_bg,
+        "avatar_backgroundActionBarOrange": c_bg,
+        "avatar_backgroundActionBarPink": c_bg,
+        "avatar_backgroundActionBarRed": c_bg,
+        "avatar_backgroundActionBarViolet": c_bg,
+        "avatar_backgroundArchived": c_accent,
+        "avatar_backgroundArchivedHidden": c_accent,
+        "avatar_backgroundBlue": c_accent,
+        "avatar_backgroundBlueShadow": c_gray,
+        "avatar_backgroundCyan": c_accent,
+        "avatar_backgroundCyanShadow": c_gray,
+        "avatar_backgroundGreen": c_accent,
+        "avatar_backgroundGreenShadow": c_gray,
+        "avatar_backgroundInProfileBlue": c_accent,
+        "avatar_backgroundInProfileCyan": c_accent,
+        "avatar_backgroundInProfileGreen": c_accent,
+        "avatar_backgroundInProfileOrange": c_accent,
+        "avatar_backgroundInProfilePink": c_accent,
+        "avatar_backgroundInProfileRed": c_accent,
+        "avatar_backgroundInProfileViolet": c_accent,
+        "avatar_backgroundOrange": c_accent,
+        "avatar_backgroundOrangeShadow": c_gray,
+        "avatar_backgroundPink": c_accent,
+        "avatar_backgroundRed": c_accent,
+        "avatar_backgroundRedShadow": c_gray,
+        "avatar_backgroundSaved": c_accent,
+        "avatar_backgroundViolet": c_accent,
+        "avatar_backgroundVioletShadow": c_gray,
+        "avatar_nameInMessageBlue": c_accent,
+        "avatar_nameInMessageCyan": c_accent,
+        "avatar_nameInMessageGreen": c_accent,
+        "avatar_nameInMessageOrange": c_accent,
+        "avatar_nameInMessagePink": c_accent,
+        "avatar_nameInMessageRed": c_accent,
+        "avatar_nameInMessageViolet": c_accent,
+        "avatar_subtitleInProfileBlue": c_accent,
+        "avatar_subtitleInProfileCyan": c_accent,
+        "avatar_subtitleInProfileGreen": c_accent,
+        "avatar_subtitleInProfileOrange": c_accent,
+        "avatar_subtitleInProfilePink": c_accent,
+        "avatar_subtitleInProfileRed": c_accent,
+        "avatar_subtitleInProfileViolet": c_accent,
+        "avatar_text": c_bg,
+        
+        # مجموعة المكالمات والدردشة
+        "calls_callReceivedGreenIcon": c_accent,
+        "calls_callReceivedRedIcon": c_accent,
+        "changephoneinfo_image": c_gray,
+        "chat_addContact": c_accent,
+        "chat_adminSelectedText": c_accent,
+        "chat_adminText": c_accent,
+        "chat_attachAudioBackground": c_gray,
+        "chat_attachAudioIcon": c_bg,
+        "chat_attachCameraIcon1": c_gray,
+        "chat_attachCameraIcon2": c_gray,
+        "chat_attachCameraIcon3": c_gray,
+        "chat_attachCameraIcon4": c_gray,
+        "chat_attachCameraIcon5": c_gray,
+        "chat_attachCameraIcon6": c_gray,
+        "chat_attachContactBackground": c_gray,
+        "chat_attachContactIcon": c_bg,
+        "chat_attachFileBackground": c_gray,
+        "chat_attachFileIcon": c_bg,
+        "chat_attachGalleryBackground": c_gray,
+        "chat_attachGalleryIcon": c_bg,
+        "chat_attachHideBackground": c_gray,
+        "chat_attachHideIcon": c_bg,
+        "chat_attachLocationBackground": c_gray,
+        "chat_attachLocationIcon": c_bg,
+        "chat_attachMediaBanBackground": c_gray,
+        "chat_attachMediaBanText": c_bg,
+        "chat_attachSendBackground": c_gray,
+        "chat_attachSendIcon": c_bg,
+        "chat_attachVideoBackground": c_gray,
+        "chat_attachVideoIcon": c_bg,
+        
+        # مجموعة أزرار البوت واللوحة والسفبار
+        "chat_botButtonText": c_accent,
+        "chat_botKeyboardButtonBackground": c_accent,
+        "chat_botKeyboardButtonBackgroundPressed": c_gray,
+        "chat_botKeyboardButtonText": c_bg,
+        "chat_botProgress": c_accent,
+        "chat_botSwitchToInlineText": c_gray,
+        "chat_editDoneIcon": c_accent,
+        "chat_emojiPanelBackground": c_bg,
+        "chat_emojiPanelBackspace": c_accent,
+        "chat_emojiPanelBadgeBackground": c_accent,
+        "chat_emojiPanelBadgeText": c_bg,
+        "chat_emojiPanelEmptyText": c_accent,
+        "chat_emojiPanelIcon": c_gray,
+        "chat_emojiPanelIconSelected": c_accent,
+        "chat_emojiPanelIconSelector": c_accent,
+        "chat_emojiPanelMasksIcon": c_gray,
+        "chat_emojiPanelMasksIconSelected": c_accent,
+        "chat_emojiSearchBackground": c_accent,
+        "chat_fieldOverlayText": c_accent,
+        "chat_goDownButton": c_bg,
+        "chat_goDownButtonCounter": c_accent,
+        "chat_goDownButtonCounterBackground": c_bg,
+        "chat_goDownButtonIcon": c_accent,
+        "chat_goDownButtonShadow": c_accent,
+        
+        # فقاعات الوارد والصادر وتفاصيل الصوت والملفات
+        "chat_inAudioDurationSelectedText": c_accent,
+        "chat_inAudioDurationText": c_accent,
+        "chat_inAudioPerformerSelectedText": c_accent,
+        "chat_inAudioPerformerText": c_accent,
+        "chat_inAudioProgress": c_bg,
+        "chat_inAudioSeekbar": c_gray,
+        "chat_inAudioSeekbarFill": c_accent,
+        "chat_inAudioSeekbarSelected": c_gray,
+        "chat_inAudioSelectedProgress": c_bg,
+        "chat_inAudioTitleText": c_accent,
+        "chat_inBubble": c_bubble_in,
+        "chat_inBubbleSelected": c_selected,
+        "chat_inBubbleShadow": c_gray,
+        "chat_inContactBackground": c_accent,
+        "chat_inContactIcon": c_bg,
+        "chat_inContactNameText": c_accent,
+        "chat_inContactPhoneText": c_accent,
+        "chat_inFileBackground": c_bg,
+        "chat_inFileBackgroundSelected": c_bg,
+        "chat_inFileIcon": c_accent,
+        "chat_inFileInfoSelectedText": c_accent,
+        "chat_inFileInfoText": c_accent,
+        "chat_inFileNameText": c_accent,
+        "chat_inFileProgress": c_bg,
+        "chat_inFileProgressSelected": c_bg,
+        "chat_inFileSelectedIcon": c_accent,
+        "chat_inForwardedNameText": c_accent,
+        "chat_inInstant": c_accent,
+        "chat_inInstantSelected": c_accent,
+        "chat_inlineResultIcon": c_accent,
+        "chat_inLoader": c_accent,
+        "chat_inLoaderPhoto": c_bg,
+        "chat_inLoaderPhotoIcon": c_accent,
+        "chat_inLoaderPhotoIconSelected": c_accent,
+        "chat_inLoaderPhotoSelected": c_bg,
+        "chat_inLoaderSelected": c_gray,
+        "chat_inLocationBackground": c_bg,
+        "chat_inLocationIcon": c_bg,
+        "chat_inMenu": c_accent,
+        "chat_inMenuSelected": c_accent,
+        "chat_inPreviewInstantSelectedText": c_accent,
+        "chat_inPreviewInstantText": c_accent,
+        "chat_inPreviewLine": c_accent,
+        "chat_inReplyLine": c_accent,
+        "chat_inReplyMediaMessageSelectedText": c_accent,
+        "chat_inReplyMediaMessageText": c_accent,
+        "chat_inReplyMessageText": c_accent,
+        "chat_inReplyNameText": c_accent,
+        "chat_inSentClock": c_accent,
+        "chat_inSentClockSelected": c_accent,
+        "chat_inSiteNameText": c_accent,
+        "chat_inTimeSelectedText": c_accent,
+        "chat_inTimeText": c_accent,
+        "chat_inVoiceSeekbar": c_gray,
+        "chat_inVoiceSeekbarFill": c_accent,
+        "chat_inVoiceSeekbarSelected": c_gray,
+        
+        # الرسائل الصادرة والروابط وصندوق الكتابة
         "chat_messageLinkIn": c_accent,
         "chat_messageLinkOut": c_accent,
-        "chat_inSiteName": c_accent,
-        "chat_outSiteName": c_accent,
+        "chat_messagePanelBackground": c_bg,
+        "chat_messagePanelCancelInlineBot": c_accent,
+        "chat_messagePanelHint": c_gray,
+        "chat_messagePanelIcons": c_accent,
+        "ChatShadow": c_accent,
+        "chat_messagePanelSend": c_accent,
+        "chat_messagePanelShadow": c_bg,
+        "chat_messagePanelText": c_accent,
+        "chat_messagePanelVoiceBackground": c_bg,
+        "chat_messagePanelVoiceDelete": c_accent,
+        "chat_messagePanelVoiceDuration": c_accent,
+        "chat_messagePanelVoicePressed": c_gray,
+        "chat_messageTextIn": c_accent,
+        "chat_messageTextOut": c_accent,
         
-        # الملفات، الأوقات، والاقتباسات
-        "chat_inFileNameText": c_white,
-        "chat_outFileNameText": c_white,
-        "chat_fileBackground": c_outgoing,
-        "chat_fileProgress": c_accent,
-        "chat_inTimeText": c_incoming_text,
-        "chat_outTimeText": c_incoming_text,
-        "chat_inReplyNameText": c_accent,
-        "chat_outReplyNameText": c_accent,
-        "chat_inReplyMessageText": c_white,
-        "chat_outReplyMessageText": c_white,
-        "chat_inReplyLine": c_accent,
-        "chat_outReplyLine": c_accent,
-        
-        # الصوتيات وتسجيلات الصوت بشكل دقيق متكامل
-        "chat_inAudioTitleText": c_white,
-        "chat_outAudioTitleText": c_white,
-        "chat_inAudioPerformerText": c_incoming_text,
-        "chat_outAudioPerformerText": c_incoming_text,
-        "chat_inAudioSeekbar": c_card,
-        "chat_outAudioSeekbar": c_outgoing,
-        "chat_inAudioSeekbarFill": c_white,
-        "chat_outAudioSeekbarFill": c_white,
-        "chat_inAudioProgress": c_incoming_text,
-        "chat_outAudioProgress": c_white,
-        "chat_inVoiceProgress": c_white,
-        "chat_outVoiceProgress": c_white,
-        "chat_inVoiceSeekbar": c_card,
-        "chat_outVoiceSeekbar": c_outgoing,
-        "chat_inVoiceSeekbarFill": c_white,
-        "chat_outVoiceSeekbarFill": c_white,
-        "chat_inAudioDuration": c_incoming_text,
-        "chat_outAudioDuration": c_incoming_text,
-        
-        # إضافات المفاتيح الهامة المستفادة من البوت الناجح لمنع أي ألوان افتراضية غير متناسقة
-        "chat_inMenu": c_accent,
+        # الصادر وصوتيات الصادر
+        "chat_outAudioDurationSelectedText": c_accent,
+        "chat_outAudioDurationText": c_accent,
+        "chat_outAudioPerfomerText": c_accent,
+        "chat_outAudioPerformerSelectedText": c_accent,
+        "chat_outAudioProgress": c_bg,
+        "chat_outAudioSeekbar": c_gray,
+        "chat_outAudioSeekbarFill": c_accent,
+        "chat_outAudioSeekbarSelected": c_gray,
+        "chat_outAudioSelectedProgress": c_bg,
+        "chat_outAudioTitleText": c_accent,
+        "chat_outBubble": c_bubble_out,
+        "chat_outBubbleSelected": c_selected,
+        "chat_outBubbleShadow": c_gray,
+        "chat_outContactBackground": c_accent,
+        "chat_outContactIcon": c_bg,
+        "chat_outContactNameText": c_accent,
+        "chat_outContactPhoneText": c_accent,
+        "chat_outFileBackground": c_bg,
+        "chat_outFileBackgroundSelected": c_bg,
+        "chat_outFileIcon": c_accent,
+        "chat_outFileInfoSelectedText": c_accent,
+        "chat_outFileInfoText": c_accent,
+        "chat_outFileNameText": c_accent,
+        "chat_outFileProgress": c_bg,
+        "chat_outFileProgressSelected": c_bg,
+        "chat_outFileSelectedIcon": c_accent,
+        "chat_outForwardedNameText": c_accent,
+        "chat_outInstant": c_accent,
+        "chat_outInstantSelected": c_accent,
+        "chat_outLoader": c_accent,
+        "chat_outLoaderPhoto": c_bg,
+        "chat_outLoaderPhotoIcon": c_accent,
+        "chat_outLoaderPhotoIconSelected": c_accent,
+        "chat_outLoaderPhotoSelected": c_bg,
+        "chat_outLoaderSelected": c_gray,
+        "chat_outLocationBackground": c_bg,
+        "chat_outLocationIcon": c_bg,
         "chat_outMenu": c_accent,
-        "chat_selectedBackground": c_selected,
+        "chat_outMenuSelected": c_accent,
+        "chat_outPreviewInstantSelectedText": c_accent,
+        "chat_outPreviewInstantText": c_accent,
+        "chat_outPreviewLine": c_accent,
+        "chat_outReplyLine": c_accent,
+        "chat_outReplyMediaMessageSelectedText": c_accent,
+        "chat_outReplyMediaMessageText": c_accent,
+        "chat_outReplyMessageText": c_accent,
+        "chat_outReplyNameText": c_accent,
+        "chat_outSentCheck": c_accent,
+        "chat_outSentCheckSelected": c_accent,
+        "chat_outSentClock": c_accent,
+        "chat_outSentClockSelected": c_accent,
+        "chat_outSiteNameText": c_accent,
+        "chat_outTimeSelectedText": c_accent,
+        "chat_outTimeText": c_accent,
+        "chat_outVoiceSeekbar": c_gray,
+        "chat_outVoiceSeekbarFill": c_accent,
+        "chat_outVoiceSeekbarSelected": c_gray,
+        
+        # قوائم المحادثات العامة والقوائم المنبثقة
+        "chats_actionBackground": c_accent,
+        "chats_actionIcon": c_bg,
+        "chats_actionMessage": c_gray,
+        "chats_date": c_accent,
+        "chats_draft": c_accent,
+        "chats_menuBackground": c_bg,
+        "chats_name": c_accent,
+        "chats_message": c_gray,
+        "chats_unreadCounter": c_accent,
+        "chats_unreadCounterText": c_bg,
+        
+        # القوائم والحوارات العامة (Dialogs)
+        "dialogBackground": c_bg,
+        "dialogBackgroundGray": c_bg,
         "dialogButton": c_accent,
         "dialogButtonSelector": c_selected,
+        "dialogTextBlack": c_accent,
+        "windowBackgroundWhite": c_bg,
+        "windowBackgroundWhiteBlackText": c_accent,
+        "windowBackgroundWhiteGrayText": c_gray,
+        
+        # التحديد العام
+        "chat_selectedBackground": c_selected,
         "chat_textSelectBackground": c_selected,
         "chat_linkSelectBackground": c_selected,
-        "windowBackgroundWhiteLinkText": c_accent,
-        "windowBackgroundWhiteBlueText": c_accent,
     }
 
     file_content = "\n".join(f"{key}={value}" for key, value in theme_keys.items()) + "\n"
@@ -615,7 +850,7 @@ def generate_custom_theme():
                 files = {"document": ("Custom_Telegram_Theme.attheme", f)}
                 data = {
                     "chat_id": user_id, 
-                    "caption": "✨ تفضل ملف الثيم المحدث بالمفاتيح الشاملة والمتكاملة لتطبيق الألوان بكل دقة!"
+                    "caption": "✨ تفضل ملف الثيم الشامل والكامل المطابق لهيكل البوت الآخر 100%!"
                 }
                 requests.post(url, data=data, files=files)
 
@@ -643,7 +878,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم تحديث مفاتيح الثيم لتطابق الهيكل الاحترافي الكامل. جرب تطبيق الملف الجديد:",
+        "تمت إضافة القائمة الكاملة والشاملة لكل المفاتيح مع تكرير القيم الدلالية مطابقةً تماماً للبوت الاحترافي. جرب الملف الجديد:",
         reply_markup=keyboard
     )
 
