@@ -161,11 +161,9 @@ input[type=range] {
 <g transform="translate(75 75)" filter="url(#previewShadow)">
 <rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
 <g clip-path="url(#leftClip)">
-<!-- صورة الخلفية التي يرفعها المستخدم -->
 <image id="wallpaperImage" href="" width="420" height="910" preserveAspectRatio="xMidYMid slice" opacity="0.85"/>
 <rect width="420" height="910" fill="var(--bg-color)" opacity="0.45"/>
 
-<!-- عناصر الهيدر والرسائل -->
 <rect width="420" height="95" fill="var(--bg-color)" opacity="0.9"/>
 <circle cx="50" cy="55" r="12" fill="var(--accent-color)"/>
 <rect x="75" y="45" width="110" height="12" rx="6" fill="var(--text-color)"/>
@@ -363,7 +361,6 @@ function setStatus(message) {
     $('statusMessage').textContent = message;
 }
 
-/* رفع الصورة وعرضها كخلفية حقيقية للمعاينة واستخراج الألوان منها */
 $('imageInput').addEventListener('change', function(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -376,7 +373,6 @@ $('imageInput').addEventListener('change', function(event) {
     reader.onerror = () => setStatus('تعذرت قراءة الصورة.');
     reader.onload = function(e) {
         const dataUrl = e.target.result;
-        // وضع الصورة كخلفية للمعاينة اليسرى
         $('wallpaperImage').setAttribute('href', dataUrl);
 
         const img = new Image();
@@ -446,7 +442,6 @@ $('copyButton').addEventListener('click', async function() {
     }
 });
 
-/* إرسال طلب التوليد وسحب الملف مباشرة من البوت */
 $('downloadButton').addEventListener('click', async function() {
     const data = currentThemeData();
     if (!data.user_id) {
@@ -516,7 +511,9 @@ def generate_custom_theme():
     c_outgoing = hex_to_signed_int(outgoing_hex)
     c_white = -1
     c_gray = hex_to_signed_int("#94a3b8")
+    c_incoming = hex_to_signed_int("#B997D0")
 
+    # مفاتيح الثيم الشاملة والمحدثة لمعالجة ألوان التوقيت، الصوت، والاقتباسات بدقة
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -535,6 +532,31 @@ def generate_custom_theme():
         "chat_outBubble": c_outgoing,
         "chat_messageTextIn": c_white,
         "chat_messageTextOut": c_white,
+        "chat_messageLinkIn": c_accent,
+        "chat_messageLinkOut": c_accent,
+        
+        # أوقات الرسائل (Timestamps) لتجنب اللون الافتراضي
+        "chat_inTimeText": c_incoming,
+        "chat_outTimeText": c_incoming,
+        
+        # اقتباسات الردود (Reply / Quote boxes)
+        "chat_inReplyNameText": c_accent,
+        "chat_outReplyNameText": c_accent,
+        "chat_inReplyMessageText": c_white,
+        "chat_outReplyMessageText": c_white,
+        "chat_inReplyLine": c_accent,
+        "chat_outReplyLine": c_accent,
+        
+        # التسجيلات والمشغل الصوتي (Voice Notes & Music)
+        "chat_inAudioTitleText": c_white,
+        "chat_outAudioTitleText": c_white,
+        "chat_inAudioPerformerText": c_incoming,
+        "chat_outAudioPerformerText": c_incoming,
+        "chat_inAudioSeekbar": c_card,
+        "chat_outAudioSeekbar": c_outgoing,
+        "chat_inAudioSeekbarFill": c_accent,
+        "chat_outAudioSeekbarFill": c_accent,
+        
         "dialogButton": c_accent,
     }
 
@@ -550,14 +572,13 @@ def generate_custom_theme():
         handle.write(file_content)
         handle.close()
 
-        # إرسال الملف مباشرة للمستخدم عبر البوت باستخدام Telegram API
         if user_id:
             url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
             with open(file_path, "rb") as f:
                 files = {"document": ("Custom_Telegram_Theme.attheme", f)}
                 data = {
                     "chat_id": user_id, 
-                    "caption": "✨ تفضل ملف الثيم المخصص الخاص بك جاهزاً للتطبيق!"
+                    "caption": "✨ تفضل ملف الثيم المعدل الخاص بك ليتطابق تماماً مع المعاينة!"
                 }
                 requests.post(url, data=data, files=files)
 
@@ -585,7 +606,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "اضغط على الزر أدناه لفتح الواجهة، اختر صورتك لتظهر كخلفية حية واستخراج ألوانها، ثم احصل على ملف الثيم مباشرة في محادثتك:",
+        "اضغط على الزر أدناه لفتح الواجهة، اختر صورتك واستخرج ألوانها بدقة، ثم احصل على ملف الثيم المحدث في محادثتك:",
         reply_markup=keyboard
     )
 
