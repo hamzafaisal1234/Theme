@@ -971,7 +971,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم تحديث النظام ليعرض رسالة الخطأ الدقيقة عند حدوث أي مشكلة. اضغط أدناه لتجربته:",
+        "تم إصلاح الخطأ البرمجي وبدء التشغيل بنجاح. اضغط أدناه لتجربته:",
         reply_markup=keyboard
     )
 
@@ -984,7 +984,7 @@ async def main():
     flask_thread.start()
     logging.info("Flask Mini App and Telegram bot are starting.")
     try:
-        await dp.status = await dp.start_polling(bot)
+        await dp.start_polling(bot)
     finally:
         await bot.session.close()
 
