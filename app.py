@@ -120,7 +120,7 @@ input[type=range] {
     font-size:13px; font-weight:bold; cursor:pointer;
 }
 .btn.secondary { background:rgba(255,255,255,.1); color:var(--text-color); }
-.status { font-size:12px; text-align:center; color: var(--accent-color); margin-top:10px; font-weight: bold; }
+.status { font-size:12px; text-align:center; color: var(--accent-color); margin-top:10px; font-weight: bold; word-break: break-all; }
 @media (max-width: 380px) {
     body { padding: 10px; }
     .btn-row { flex-direction: column; }
@@ -282,7 +282,6 @@ input[type=range] {
 </div>
 
 <div class="controls">
-    <!-- حقل Chat ID الاحتياطي يظهر تلقائياً إذا لم يتعرف البوت على المستخدم -->
     <div class="control-group" id="chatIdContainer" style="display:none; flex-direction:column; align-items:flex-start;">
         <label for="manualChatId">معرف تيليجرام الخاص بك (Chat ID):</label>
         <input type="text" id="manualChatId" placeholder="مثال: 123456789">
@@ -334,7 +333,6 @@ const root = document.documentElement;
 
 let telegramUserId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
 
-// إذا لم يتم جلب المعرف تلقائياً (مثلاً عند الفتح من المتصفح العادي)، أظهر حقل الإدخال اليدوي
 if (!telegramUserId) {
     $('chatIdContainer').style.display = 'flex';
 }
@@ -556,10 +554,10 @@ $('downloadButton').addEventListener('click', async function() {
             setStatus('✅ تم إرسال ملف الثيم إلى محادثتك في البوت بنجاح!');
             setTimeout(() => { if (tg && typeof tg.close === 'function') tg.close(); }, 2000);
         } else {
-            setStatus('❌ فشل في إرسال الملف.');
+            setStatus('❌ فشل: ' + (resJson.error || 'خطأ غير معروف'));
         }
     } catch (error) {
-        setStatus('❌ حدث خطأ في الاتصال بالسيرفر.');
+        setStatus('❌ خطأ في الاتصال بالسيرفر: ' + error.message);
     } finally {
         $('downloadButton').disabled = false;
     }
@@ -939,7 +937,15 @@ def generate_custom_theme():
                     "chat_id": user_id, 
                     "caption": "✨ تفضل ملف الثيم الذكي والمطور باستخدام محرك HSL اللوني وقاموس المفاتيح الشامل!"
                 }
-                requests.post(url, data=data, files=files)
+                resp = requests.post(url, data=data, files=files)
+                if not resp.ok:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                    try:
+                        err_desc = resp.json().get("description", resp.text)
+                    except:
+                        err_desc = resp.text
+                    return jsonify({"success": False, "error": err_desc}), 400
 
         if os.path.exists(file_path):
             os.remove(file_path)
@@ -965,7 +971,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم إصلاح أزرار الإرسال وتجنب مشاكل المتصفح بالكامل. اضغط أدناه لتجربته:",
+        "تم تحديث النظام ليعرض رسالة الخطأ الدقيقة عند حدوث أي مشكلة. اضغط أدناه لتجربته:",
         reply_markup=keyboard
     )
 
@@ -978,7 +984,7 @@ async def main():
     flask_thread.start()
     logging.info("Flask Mini App and Telegram bot are starting.")
     try:
-        await dp.start_polling(bot)
+        await dp.status = await dp.start_polling(bot)
     finally:
         await bot.session.close()
 
