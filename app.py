@@ -2,7 +2,8 @@ import os
 import logging
 import asyncio
 import threading
-from flask import Flask, render_template_string, request, send_file, jsonify
+import requests
+from flask import Flask, render_template_string, request, jsonify
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
@@ -26,15 +27,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
-    /* احتفظنا بالقيم الأصلية، وأضفنا متغيرات SVG الضرورية فقط */
     --bg-color: #0f172a;
     --card-color: #1e293b;
     --accent-color: #38bdf8;
     --bubble-out: #0284c7;
     --incoming-color: #B997D0;
-    --wallpaper-top: #0B0E2C;
-    --wallpaper-mid: #182046;
-    --wallpaper-bottom: #0E1738;
     --text-color: #f8fafc;
     --gray-text: #94a3b8;
     --ui-opacity: .90;
@@ -124,7 +121,7 @@ input[type=range] {
     font-size:13px; font-weight:bold; cursor:pointer;
 }
 .btn.secondary { background:rgba(255,255,255,.1); color:var(--text-color); }
-.status { font-size:12px; text-align:center; color:var(--gray-text); margin-top:10px; }
+.status { font-size:12px; text-align:center; color: var(--accent-color); margin-top:10px; font-weight: bold; }
 @media (max-width: 380px) {
     body { padding: 10px; }
     .btn-row { flex-direction: column; }
@@ -135,7 +132,7 @@ input[type=range] {
 <h2>🎨 صانع ثيمات تيليجرام</h2>
 
 <label class="upload-box">
-    📁 اضغط لاختيار صورة واستخراج لوحة ألوان أولية
+    📁 اضغط لاختيار صورة (ستظهر كخلفية للمعاينة ويتم استخراج ألوانها)
     <input type="file" id="imageInput" accept="image/*">
 </label>
 
@@ -147,11 +144,6 @@ input[type=range] {
         <stop offset="0%" stop-color="#2D223B"/>
         <stop offset="50%" stop-color="var(--bg-color)"/>
         <stop offset="100%" stop-color="#0B0E2C"/>
-    </linearGradient>
-    <linearGradient id="previewWallpaper" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--wallpaper-top)"/>
-        <stop offset="50%" stop-color="var(--wallpaper-mid)"/>
-        <stop offset="100%" stop-color="var(--wallpaper-bottom)"/>
     </linearGradient>
     <linearGradient id="previewAvatar" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="var(--accent-color)"/>
@@ -165,16 +157,16 @@ input[type=range] {
 </defs>
 <rect width="1080" height="1080" fill="url(#previewBg)"/>
 
-<!-- الهاتف الأيسر: شاشة محادثة -->
+<!-- الهاتف الأيسر: شاشة محادثة مع خلفية الصورة المرفوعة -->
 <g transform="translate(75 75)" filter="url(#previewShadow)">
 <rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
 <g clip-path="url(#leftClip)">
-<rect width="420" height="910" fill="url(#previewWallpaper)"/>
-<path d="M0 650 Q120 580 240 680 T420 620 V910 H0Z" fill="#0A122B" opacity=".75"/>
-<path d="M0 720 Q160 640 310 750 T420 700 V910 H0Z" fill="#060A1B" opacity=".8"/>
-<circle cx="280" cy="490" r="25" fill="#FFF8D6" opacity=".8"/>
-<circle cx="292" cy="480" r="23" fill="var(--wallpaper-mid)"/>
-<rect width="420" height="95" fill="var(--bg-color)"/>
+<!-- صورة الخلفية التي يرفعها المستخدم -->
+<image id="wallpaperImage" href="" width="420" height="910" preserveAspectRatio="xMidYMid slice" opacity="0.85"/>
+<rect width="420" height="910" fill="var(--bg-color)" opacity="0.45"/>
+
+<!-- عناصر الهيدر والرسائل -->
+<rect width="420" height="95" fill="var(--bg-color)" opacity="0.9"/>
 <circle cx="50" cy="55" r="12" fill="var(--accent-color)"/>
 <rect x="75" y="45" width="110" height="12" rx="6" fill="var(--text-color)"/>
 <rect x="75" y="63" width="60" height="8" rx="4" fill="var(--incoming-color)"/>
@@ -221,12 +213,8 @@ input[type=range] {
 <rect width="190" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
 <rect x="15" y="17" width="140" height="8" rx="4" fill="var(--text-color)"/>
 </g>
-<g transform="translate(200 635)">
-<rect width="190" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
-<rect x="15" y="17" width="110" height="8" rx="4" fill="var(--text-color)"/>
-</g>
 <g transform="translate(0 830)">
-<rect width="420" height="80" fill="var(--bg-color)"/>
+<rect width="420" height="80" fill="var(--bg-color)" opacity="0.9"/>
 <circle cx="35" cy="40" r="14" fill="var(--accent-color)"/>
 <rect x="65" y="22" width="220" height="36" rx="18" fill="var(--card-color)"/>
 <circle cx="340" cy="40" r="14" fill="var(--accent-color)"/>
@@ -276,28 +264,9 @@ input[type=range] {
 </g>
 <g transform="translate(0 470)">
 <circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
-<circle cx="68" cy="58" r="6" fill="var(--bg-color)"/>
-<circle cx="68" cy="58" r="4" fill="var(--accent-color)"/>
 <rect x="95" y="24" width="85" height="11" rx="5.5" fill="var(--text-color)"/>
 <rect x="95" y="44" width="50" height="9" rx="4.5" fill="var(--incoming-color)"/>
 <rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
-</g>
-<g transform="translate(0 555)">
-<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
-<rect x="95" y="24" width="90" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="75" height="9" rx="4.5" fill="var(--incoming-color)"/>
-<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
-</g>
-<g transform="translate(0 640)">
-<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
-<rect x="95" y="24" width="80" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="60" height="9" rx="4.5" fill="var(--incoming-color)"/>
-<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
-</g>
-<g transform="translate(0 725)">
-<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)" opacity=".6"/>
-<rect x="95" y="24" width="100" height="11" rx="5.5" fill="var(--text-color)"/>
-<rect x="95" y="44" width="55" height="9" rx="4.5" fill="var(--incoming-color)"/>
 </g>
 <g transform="translate(325 785)">
 <circle cx="36" cy="36" r="32" fill="var(--accent-color)"/>
@@ -306,7 +275,6 @@ input[type=range] {
 </g></g>
 </svg>
 </div>
-<div class="preview-note">معاينة رسومية توضيحية، وليست لقطة فعلية من تطبيق تيليجرام.</div>
 
 <div style="text-align:center;font-size:12px;color:var(--gray-text)">لوحة الألوان الحالية</div>
 <div class="palette-preview" id="palettePreview">
@@ -333,10 +301,6 @@ input[type=range] {
         <label for="outColor">لون الرسائل الصادرة</label>
         <input type="color" id="outColor" value="#0284c7">
     </div>
-    <div class="control-group">
-        <label for="incomingTextColor">لون تفاصيل الرسائل الواردة</label>
-        <input type="color" id="incomingTextColor" value="#B997D0">
-    </div>
     <div>
         <div class="range-label">
             <label for="opacityRange">شفافية فقاعات الرسائل</label>
@@ -345,8 +309,8 @@ input[type=range] {
         <input type="range" id="opacityRange" min="20" max="100" value="90">
     </div>
     <div class="btn-row">
-        <button class="btn secondary" id="copyButton" type="button">📋 نسخ أكواد الألوان</button>
-        <button class="btn" id="downloadButton" type="button">📥 تحميل ملف الثيم</button>
+        <button class="btn secondary" id="copyButton" type="button">📋 نسخ الأكواد</button>
+        <button class="btn" id="downloadButton" type="button">📥 توليد وإرسال الثيم للبوت</button>
     </div>
     <div class="status" id="statusMessage" role="status"></div>
 </div>
@@ -366,19 +330,17 @@ function updatePreview() {
     const card = $('cardColor').value;
     const accent = $('accentColor').value;
     const outgoing = $('outColor').value;
-    const incoming = $('incomingTextColor').value;
     const opacity = Number($('opacityRange').value) / 100;
 
     root.style.setProperty('--bg-color', bg);
     root.style.setProperty('--card-color', card);
     root.style.setProperty('--accent-color', accent);
     root.style.setProperty('--bubble-out', outgoing);
-    root.style.setProperty('--incoming-color', incoming);
     root.style.setProperty('--ui-opacity', opacity);
     $('opacityVal').textContent = Math.round(opacity * 100);
 }
 
-['accentColor', 'bgColor', 'cardColor', 'outColor', 'incomingTextColor', 'opacityRange']
+['accentColor', 'bgColor', 'cardColor', 'outColor', 'opacityRange']
     .forEach(id => $(id).addEventListener('input', updatePreview));
 
 function rgbToHex(r, g, b) {
@@ -401,7 +363,7 @@ function setStatus(message) {
     $('statusMessage').textContent = message;
 }
 
-/* استخراج تقريبي للون المتوسط. هذه ليست خوارزمية تجميع ألوان متقدمة. */
+/* رفع الصورة وعرضها كخلفية حقيقية للمعاينة واستخراج الألوان منها */
 $('imageInput').addEventListener('change', function(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -413,8 +375,11 @@ $('imageInput').addEventListener('change', function(event) {
     const reader = new FileReader();
     reader.onerror = () => setStatus('تعذرت قراءة الصورة.');
     reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        // وضع الصورة كخلفية للمعاينة اليسرى
+        $('wallpaperImage').setAttribute('href', dataUrl);
+
         const img = new Image();
-        img.onerror = () => setStatus('تعذر فتح الصورة.');
         img.onload = function() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d', {willReadFrequently: true});
@@ -429,10 +394,7 @@ $('imageInput').addEventListener('change', function(event) {
                 r += pixels[i]; g += pixels[i + 1]; b += pixels[i + 2];
                 count++;
             }
-            if (!count) {
-                setStatus('لم يتم العثور على بكسلات صالحة في الصورة.');
-                return;
-            }
+            if (!count) return;
 
             const avg = rgbToHex(r / count, g / count, b / count);
             const darkBg = darken(avg, 45);
@@ -443,20 +405,15 @@ $('imageInput').addEventListener('change', function(event) {
             $('bgColor').value = darkBg;
             $('cardColor').value = card;
             $('outColor').value = accent;
-            $('incomingTextColor').value = '#B997D0';
 
-            root.style.setProperty('--wallpaper-top', darkBg);
-            root.style.setProperty('--wallpaper-mid', card);
-            root.style.setProperty('--wallpaper-bottom', darken(avg, 65));
-
-            $('palettePreview').innerHTML = [accent, darkBg, card, '#B997D0', '#FFFFFF']
+            $('palettePreview').innerHTML = [accent, darkBg, card, '#FFFFFF']
                 .map(color => '<div class="color-dot" title="' + color +
                     '" style="background:' + color + '"></div>').join('');
 
             updatePreview();
-            setStatus('تم استخراج ألوان أولية من الصورة. يمكنك تعديل كل لون يدويًا.');
+            setStatus('✨ تم تطبيق الصورة كخلفية واستخراج الألوان بنجاح!');
         };
-        img.src = e.target.result;
+        img.src = dataUrl;
     };
     reader.readAsDataURL(file);
 });
@@ -467,8 +424,6 @@ function currentThemeData() {
         card: $('cardColor').value,
         accent: $('accentColor').value,
         outgoing: $('outColor').value,
-        incoming: $('incomingTextColor').value,
-        opacity: Number($('opacityRange').value),
         user_id: tg && tg.initDataUnsafe && tg.initDataUnsafe.user
             ? tg.initDataUnsafe.user.id : null
     };
@@ -480,29 +435,27 @@ $('copyButton').addEventListener('click', async function() {
         'Background=' + d.bg,
         'Card=' + d.card,
         'Accent=' + d.accent,
-        'Outgoing=' + d.outgoing,
-        'Incoming detail=' + d.incoming,
-        'Opacity=' + d.opacity + '%'
-    ].join('\\n');
+        'Outgoing=' + d.outgoing
+    ].join('\n');
 
     try {
         await navigator.clipboard.writeText(text);
-        setStatus('تم نسخ أكواد الألوان.');
+        setStatus('📋 تم نسخ أكواد الألوان.');
     } catch (error) {
-        const area = document.createElement('textarea');
-        area.value = text;
-        document.body.appendChild(area);
-        area.select();
-        const ok = document.execCommand('copy');
-        area.remove();
-        setStatus(ok ? 'تم نسخ أكواد الألوان.' : 'تعذر النسخ تلقائيًا؛ انسخ القيم يدويًا.');
+        setStatus('تعذر النسخ تلقائياً.');
     }
 });
 
+/* إرسال طلب التوليد وسحب الملف مباشرة من البوت */
 $('downloadButton').addEventListener('click', async function() {
     const data = currentThemeData();
+    if (!data.user_id) {
+        setStatus('⚠️ يجدر فتح هذه الواجهة من داخل بوت تيليجرام حصرياً.');
+        return;
+    }
+
     $('downloadButton').disabled = true;
-    setStatus('جارٍ تجهيز ملف الثيم...');
+    setStatus('⏳ جارٍ توليد الثيم وإرساله إلى دردشتك...');
 
     try {
         const response = await fetch('/generate-custom-theme', {
@@ -510,23 +463,15 @@ $('downloadButton').addEventListener('click', async function() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
-        if (!response.ok) {
-            const message = await response.text();
-            throw new Error(message || 'فشل إنشاء الملف');
+        const resJson = await response.json();
+        if (resJson.success) {
+            setStatus('✅ تم إرسال ملف الثيم إلى محادثتك في البوت بنجاح!');
+            setTimeout(() => { if (tg) tg.close(); }, 2000);
+        } else {
+            setStatus('❌ فشل في إرسال الملف.');
         }
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Advanced_Telegram_Theme.attheme';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
-        setStatus('تم تنزيل ملف الثيم. اختبره في تيليجرام؛ توافق المفاتيح يختلف حسب إصدار التطبيق.');
     } catch (error) {
-        console.error(error);
-        setStatus('تعذر إنشاء الملف. تحقق من اتصال الواجهة بالخادم.');
+        setStatus('❌ حدث خطأ في الاتصال بالسيرفر.');
     } finally {
         $('downloadButton').disabled = false;
     }
@@ -539,10 +484,7 @@ updatePreview();
 
 
 def hex_to_signed_int(hex_str):
-    """Convert #RRGGBB to Telegram-style signed ARGB integer."""
     hex_str = hex_str.strip().lstrip("#")
-    if len(hex_str) != 6:
-        raise ValueError("Expected a six-digit hex color")
     r = int(hex_str[0:2], 16)
     g = int(hex_str[2:4], 16)
     b = int(hex_str[4:6], 16)
@@ -551,54 +493,30 @@ def hex_to_signed_int(hex_str):
         value -= 0x100000000
     return value
 
-
-def safe_color(value, default):
-    if not isinstance(value, str):
-        return default
-    value = value.strip()
-    if len(value) == 7 and value.startswith("#"):
-        try:
-            int(value[1:], 16)
-            return value
-        except ValueError:
-            pass
-    return default
-
-
 @app.route("/")
 def home():
     return "Advanced Telegram Theme Mini App is running."
-
-
-@app.route("/health")
-def health():
-    return jsonify({"status": "ok"})
-
 
 @app.route("/webapp")
 def webapp():
     return render_template_string(HTML_TEMPLATE)
 
-
 @app.route("/generate-custom-theme", methods=["POST"])
 def generate_custom_theme():
     req_data = request.get_json(silent=True) or {}
-
-    bg_hex = safe_color(req_data.get("bg"), "#0f172a")
-    card_hex = safe_color(req_data.get("card"), "#1e293b")
-    accent_hex = safe_color(req_data.get("accent"), "#38bdf8")
-    outgoing_hex = safe_color(req_data.get("outgoing"), "#0284c7")
-    incoming_hex = safe_color(req_data.get("incoming"), "#B997D0")
+    bg_hex = req_data.get("bg", "#0f172a")
+    card_hex = req_data.get("card", "#1e293b")
+    accent_hex = req_data.get("accent", "#38bdf8")
+    outgoing_hex = req_data.get("outgoing", "#0284c7")
+    user_id = req_data.get("user_id")
 
     c_bg = hex_to_signed_int(bg_hex)
     c_card = hex_to_signed_int(card_hex)
     c_accent = hex_to_signed_int(accent_hex)
     c_outgoing = hex_to_signed_int(outgoing_hex)
-    c_incoming = hex_to_signed_int(incoming_hex)
     c_white = -1
     c_gray = hex_to_signed_int("#94a3b8")
 
-    # هذه مجموعة مفاتيح مبدئية؛ يلزم اختبار توافق كل مفتاح مع إصدار Telegram المستهدف.
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -621,41 +539,42 @@ def generate_custom_theme():
     }
 
     file_content = "\n".join(f"{key}={value}" for key, value in theme_keys.items()) + "\n"
-    # ملف مؤقت فريد لكل طلب، مع تنظيفه بعد إرساله.
+    
     import tempfile
     handle = tempfile.NamedTemporaryFile(
         mode="w", encoding="utf-8", suffix=".attheme", prefix="custom_theme_", delete=False
     )
     file_path = handle.name
+    
     try:
         handle.write(file_content)
         handle.close()
-        response = send_file(
-            file_path,
-            as_attachment=True,
-            download_name="Advanced_Telegram_Theme.attheme",
-            mimetype="application/octet-stream",
-        )
-        response.call_on_close(lambda: os.path.exists(file_path) and os.remove(file_path))
-        return response
-    except Exception:
-        try:
-            handle.close()
-            if os.path.exists(file_path):
-                os.remove(file_path)
-        except OSError:
-            pass
-        raise
 
+        # إرسال الملف مباشرة للمستخدم عبر البوت باستخدام Telegram API
+        if user_id:
+            url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
+            with open(file_path, "rb") as f:
+                files = {"document": ("Custom_Telegram_Theme.attheme", f)}
+                data = {
+                    "chat_id": user_id, 
+                    "caption": "✨ تفضل ملف الثيم المخصص الخاص بك جاهزاً للتطبيق!"
+                }
+                requests.post(url, data=data, files=files)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        return jsonify({"success": True})
+    except Exception as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     base_url = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
-    if not base_url or not base_url.startswith("https://"):
-        await message.answer(
-            "البوت لم يُضبط بعد على رابط HTTPS عام. عيّن متغير RENDER_EXTERNAL_URL "
-            "إلى رابط تطبيقك المنشور على Render ثم أعد تشغيله."
-        )
+    if not base_url:
+        await message.answer("عذراً، رابط الخدمة غير مضبوط على Render.")
         return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -665,16 +584,14 @@ async def cmd_start(message: types.Message):
         )]
     ])
     await message.answer(
-        "✨ أهلًا بك في صانع ثيمات تيليجرام.\n"
-        "افتح المعاينة، عدّل الألوان، ثم نزّل ملف الثيم.",
+        "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
+        "اضغط على الزر أدناه لفتح الواجهة، اختر صورتك لتظهر كخلفية حية واستخراج ألوانها، ثم احصل على ملف الثيم مباشرة في محادثتك:",
         reply_markup=keyboard
     )
-
 
 def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port, use_reloader=False, threaded=True)
-
 
 async def main():
     flask_thread = threading.Thread(target=run_flask, daemon=True)
@@ -684,7 +601,6 @@ async def main():
         await dp.start_polling(bot)
     finally:
         await bot.session.close()
-
 
 if __name__ == "__main__":
     asyncio.run(main())
