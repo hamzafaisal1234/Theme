@@ -437,7 +437,6 @@ function extractThemePalette(image) {
     return { bg, card, accent, outgoing, secondary };
 }
 
-/* رفع الصورة وتحليلها عبر المحرك الذكي الجديد */
 $('imageInput').addEventListener('change', function(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -484,6 +483,7 @@ $('imageInput').addEventListener('change', function(event) {
 });
 
 function currentThemeData() {
+    let userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
     return {
         bg: $('bgColor').value,
         card: $('cardColor').value,
@@ -491,8 +491,7 @@ function currentThemeData() {
         outgoing: $('outColor').value,
         secondary: $('secondaryColor').value,
         opacity: Number($('opacityRange').value),
-        user_id: tg && tg.initDataUnsafe && tg.initDataUnsafe.user
-            ? tg.initDataUnsafe.user.id : null
+        user_id: userId
     };
 }
 
@@ -515,10 +514,14 @@ $('copyButton').addEventListener('click', async function() {
 });
 
 $('downloadButton').addEventListener('click', async function() {
-    const data = currentThemeData();
+    let data = currentThemeData();
     if (!data.user_id) {
-        setStatus('⚠️ يجدر فتح هذه الواجهة من داخل بوت تيليجرام حصرياً.');
-        return;
+        let inputId = prompt("أنت تختبر الواجهة من المتصفح العادي. أدخل معرف تيليجرام الخاص بك (Chat ID) لتلقي ملف الثيم:");
+        if (!inputId) {
+            setStatus('⚠️ يجب توفر معرف تيليجرام (Chat ID) لإرسال الملف.');
+            return;
+        }
+        data.user_id = inputId;
     }
 
     $('downloadButton').disabled = true;
@@ -579,7 +582,6 @@ def generate_custom_theme():
     opacity_val = int(req_data.get("opacity", 90))
     user_id = req_data.get("user_id")
 
-    # شفافية الفقاعات بناءً على خيار المستخدم (مثال: 90%)
     bubble_alpha = round((opacity_val / 100.0) * 255)
 
     c_bg = hex_to_signed_int(bg_hex)
@@ -588,14 +590,12 @@ def generate_custom_theme():
     c_outgoing = hex_to_signed_int(outgoing_hex)
     c_secondary = hex_to_signed_int(secondary_hex)
     
-    # فقاعات شفافة تدعم التأثير الزجاجي مع فصل الشفافية بدقة
     c_bubble_in = hex_to_signed_int(card_hex, alpha=bubble_alpha)
     c_bubble_out = hex_to_signed_int(outgoing_hex, alpha=bubble_alpha)
     
     c_white = -1
     c_selected = hex_to_signed_int("#334155")
 
-    # القائمة الشاملة والكاملة لجميع مفاتيح تيليجرام مع التوزيع الدلالي المنسق
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -607,7 +607,6 @@ def generate_custom_theme():
         "windowBackgroundWhiteGrayText": c_secondary,
         "dialogTextBlack": c_white,
         
-        # مجموعة ActionBar والعناوين والقوائم المنسدلة
         "actionBarActionModeDefault": c_bg,
         "actionBarActionModeDefaultIcon": c_accent,
         "actionBarActionModeDefaultSelector": c_accent,
@@ -629,7 +628,6 @@ def generate_custom_theme():
         "actionBarDefaultTitle": c_white,
         "actionBarWhiteSelector": c_secondary,
         
-        # مجموعة الأفاتار والرموز
         "avatar_actionBarIconBlue": c_accent,
         "avatar_actionBarIconCyan": c_accent,
         "avatar_actionBarIconGreen": c_accent,
@@ -690,7 +688,6 @@ def generate_custom_theme():
         "avatar_subtitleInProfileViolet": c_accent,
         "avatar_text": c_bg,
         
-        # مجموعة المكالمات والدردشة والملحقات
         "calls_callReceivedGreenIcon": c_accent,
         "calls_callReceivedRedIcon": c_accent,
         "changephoneinfo_image": c_secondary,
@@ -722,7 +719,6 @@ def generate_custom_theme():
         "chat_attachVideoBackground": c_secondary,
         "chat_attachVideoIcon": c_bg,
         
-        # أزرار البوت واللوحة السفلى
         "chat_botButtonText": c_accent,
         "chat_botKeyboardButtonBackground": c_accent,
         "chat_botKeyboardButtonBackgroundPressed": c_secondary,
@@ -748,7 +744,6 @@ def generate_custom_theme():
         "chat_goDownButtonIcon": c_accent,
         "chat_goDownButtonShadow": c_accent,
         
-        # فقاعات الوارد والصادر وتفاصيل الصوت والملفات
         "chat_inAudioDurationSelectedText": c_secondary,
         "chat_inAudioDurationText": c_secondary,
         "chat_inAudioPerformerSelectedText": c_secondary,
@@ -806,7 +801,6 @@ def generate_custom_theme():
         "chat_inVoiceSeekbarFill": c_accent,
         "chat_inVoiceSeekbarSelected": c_secondary,
         
-        # الروابط وصندوق كتابة الرسائل
         "chat_messageLinkIn": c_accent,
         "chat_messageLinkOut": c_accent,
         "chat_messagePanelBackground": c_bg,
@@ -824,7 +818,6 @@ def generate_custom_theme():
         "chat_messageTextIn": c_white,
         "chat_messageTextOut": c_white,
         
-        # الصادر وصوتيات الصادر
         "chat_outAudioDurationSelectedText": c_secondary,
         "chat_outAudioDurationText": c_secondary,
         "chat_outAudioPerfomerText": c_secondary,
@@ -883,7 +876,6 @@ def generate_custom_theme():
         "chat_outVoiceSeekbarFill": c_accent,
         "chat_outVoiceSeekbarSelected": c_secondary,
         
-        # قوائم المحادثات العامة
         "chats_actionBackground": c_accent,
         "chats_actionIcon": c_bg,
         "chats_actionMessage": c_secondary,
@@ -895,7 +887,6 @@ def generate_custom_theme():
         "chats_unreadCounter": c_accent,
         "chats_unreadCounterText": c_bg,
         
-        # القوائم والحوارات العامة (Dialogs)
         "dialogBackground": c_bg,
         "dialogBackgroundGray": c_bg,
         "dialogButton": c_accent,
@@ -905,7 +896,6 @@ def generate_custom_theme():
         "windowBackgroundWhiteBlackText": c_white,
         "windowBackgroundWhiteGrayText": c_secondary,
         
-        # التحديد العام
         "chat_selectedBackground": c_selected,
         "chat_textSelectBackground": c_selected,
         "chat_linkSelectBackground": c_selected,
@@ -957,7 +947,7 @@ async def cmd_start(message: types.Message):
     ])
     await message.answer(
         "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم تحديث محرك استخراج الألوان بناءً على فضاء HSL وقاموس المفاتيح الشامل. اضغط أدناه لتجربته:",
+        "تم تحديث محرك استخراج الألوان وقاموس المفاتيح الشامل وإصلاح الأزرار بالكامل. اضغط أدناه لتجربته:",
         reply_markup=keyboard
     )
 
