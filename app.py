@@ -138,6 +138,7 @@ input[type=range] {
 
 <div class="svg-preview-container">
 <svg id="telegramPreview" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
      viewBox="0 0 1080 1080" role="img" aria-label="معاينة ثيم تيليجرام">
 <defs>
     <linearGradient id="previewBg" x1="0" y1="0" x2="1" y2="1">
@@ -157,18 +158,128 @@ input[type=range] {
 </defs>
 <rect width="1080" height="1080" fill="url(#previewBg)"/>
 
+<!-- الهاتف الأيسر: شاشة محادثة مع خلفية الصورة المرفوعة -->
 <g transform="translate(75 75)" filter="url(#previewShadow)">
 <rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
 <g clip-path="url(#leftClip)">
-<image id="wallpaperImage" href="" width="420" height="910" preserveAspectRatio="xMidYMid slice" opacity="0.85"/>
+<image id="wallpaperImage" href="" xlink:href="" width="420" height="910" preserveAspectRatio="xMidYMid slice" opacity="0.85"/>
 <rect width="420" height="910" fill="var(--bg-color)" opacity="0.45"/>
 <rect width="420" height="95" fill="var(--bg-color)" opacity="0.9"/>
 <circle cx="50" cy="55" r="12" fill="var(--accent-color)"/>
 <rect x="75" y="45" width="110" height="12" rx="6" fill="var(--text-color)"/>
 <rect x="75" y="63" width="60" height="8" rx="4" fill="var(--secondary-color)"/>
 <circle cx="375" cy="55" r="10" fill="var(--accent-color)"/>
+
+<g transform="translate(220 125)">
+<rect width="170" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="17" width="110" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(30 185)">
+<rect width="210" height="70" rx="16" fill="var(--card-color)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="14" width="3" height="42" rx="1.5" fill="var(--accent-color)"/>
+<rect x="26" y="18" width="80" height="8" rx="4" fill="var(--text-color)"/>
+<rect x="26" y="34" width="140" height="8" rx="4" fill="var(--secondary-color)"/>
+</g>
+<g transform="translate(200 270)">
+<rect width="190" height="45" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="18" width="130" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(140 385)">
+<rect width="250" height="68" rx="20" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<circle cx="35" cy="34" r="20" fill="var(--accent-color)"/>
+<g fill="var(--text-color)">
+<rect x="70" y="30" width="3" height="10" rx="1.5"/><rect x="77" y="22" width="3" height="24" rx="1.5"/>
+<rect x="84" y="18" width="3" height="32" rx="1.5"/><rect x="91" y="26" width="3" height="16" rx="1.5"/>
+<rect x="98" y="20" width="3" height="28" rx="1.5"/>
+</g>
+<g fill="var(--secondary-color)">
+<rect x="105" y="28" width="3" height="12" rx="1.5"/><rect x="112" y="23" width="3" height="22" rx="1.5"/>
+<rect x="119" y="19" width="3" height="30" rx="1.5"/><rect x="126" y="25" width="3" height="18" rx="1.5"/>
+<rect x="133" y="30" width="3" height="8" rx="1.5"/><rect x="140" y="22" width="3" height="24" rx="1.5"/>
+<rect x="147" y="27" width="3" height="14" rx="1.5"/><rect x="154" y="31" width="3" height="6" rx="1.5"/>
+</g>
+<rect x="70" y="50" width="45" height="4" rx="2" fill="var(--accent-color)"/>
+</g>
+<g transform="translate(30 500)">
+<rect width="210" height="72" rx="18" fill="var(--card-color)" opacity="var(--ui-opacity)"/>
+<circle cx="30" cy="36" r="16" fill="var(--accent-color)"/>
+<rect x="56" y="22" width="100" height="8" rx="4" fill="var(--text-color)"/>
+<rect x="56" y="38" width="70" height="8" rx="4" fill="var(--secondary-color)"/>
+<circle cx="30" cy="36" r="5" fill="var(--bg-color)"/>
+</g>
+<g transform="translate(200 585)">
+<rect width="190" height="42" rx="16" fill="var(--bubble-out)" opacity="var(--ui-opacity)"/>
+<rect x="15" y="17" width="140" height="8" rx="4" fill="var(--text-color)"/>
+</g>
+<g transform="translate(0 830)">
+<rect width="420" height="80" fill="var(--bg-color)" opacity="0.9"/>
+<circle cx="35" cy="40" r="14" fill="var(--accent-color)"/>
+<rect x="65" y="22" width="220" height="36" rx="18" fill="var(--card-color)"/>
+<circle cx="340" cy="40" r="14" fill="var(--accent-color)"/>
+<circle cx="385" cy="40" r="14" fill="var(--accent-color)"/>
+</g>
+</g></g>
+
+<!-- الهاتف الأيمن: قائمة المحادثات -->
+<g transform="translate(585 120)" filter="url(#previewShadow)">
+<rect width="420" height="910" rx="48" fill="var(--bg-color)" stroke="var(--card-color)" stroke-width="5"/>
+<g clip-path="url(#rightClip)">
+<rect width="420" height="910" fill="var(--bg-color)"/>
+<rect width="420" height="110" fill="var(--bg-color)"/>
+<circle cx="45" cy="40" r="10" fill="var(--accent-color)"/>
+<rect x="75" y="34" width="100" height="12" rx="6" fill="var(--text-color)"/>
+<circle cx="345" cy="40" r="10" fill="var(--accent-color)"/>
+<circle cx="380" cy="40" r="10" fill="var(--accent-color)"/>
+<circle cx="45" cy="85" r="8" fill="var(--accent-color)"/>
+<rect x="65" y="81" width="70" height="8" rx="4" fill="var(--secondary-color)"/>
+<circle cx="345" cy="85" r="8" fill="var(--accent-color)"/>
+<circle cx="380" cy="85" r="8" fill="var(--accent-color)"/>
+
+<g transform="translate(0 130)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="75" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="75" height="9" rx="4.5" fill="var(--secondary-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+<circle cx="370" cy="46" r="6" fill="var(--accent-color)"/>
+</g>
+<g transform="translate(0 215)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="95" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="60" height="9" rx="4.5" fill="var(--secondary-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 300)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="105" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="70" height="9" rx="4.5" fill="var(--secondary-color)"/>
+<circle cx="368" cy="42" r="9" fill="var(--card-color)"/>
+</g>
+<g transform="translate(0 385)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="60" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="170" height="9" rx="4.5" fill="var(--secondary-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(0 470)">
+<circle cx="48" cy="40" r="30" fill="url(#previewAvatar)"/>
+<rect x="95" y="24" width="85" height="11" rx="5.5" fill="var(--text-color)"/>
+<rect x="95" y="44" width="50" height="9" rx="4.5" fill="var(--secondary-color)"/>
+<rect x="355" y="24" width="30" height="8" rx="4" fill="var(--accent-color)" opacity=".8"/>
+</g>
+<g transform="translate(325 785)">
+<circle cx="36" cy="36" r="32" fill="var(--accent-color)"/>
+<circle cx="36" cy="36" r="14" fill="var(--bg-color)" opacity=".9"/>
+</g>
 </g></g>
 </svg>
+</div>
+
+<div style="text-align:center;font-size:12px;color:var(--gray-text)">لوحة الألوان المستخرجة ذكياً</div>
+<div class="palette-preview" id="palettePreview">
+    <div class="color-dot" style="background:#38bdf8"></div>
+    <div class="color-dot" style="background:#0284c7"></div>
+    <div class="color-dot" style="background:#1e293b"></div>
+    <div class="color-dot" style="background:#0f172a"></div>
 </div>
 
 <div class="controls">
@@ -216,11 +327,19 @@ input[type=range] {
 
 <script>
 const tg = window.Telegram && window.Telegram.WebApp;
-if (tg) { tg.ready(); tg.expand(); }
+if (tg) {
+    tg.ready();
+    tg.expand();
+}
+
 const $ = (id) => document.getElementById(id);
 const root = document.documentElement;
+
 let telegramUserId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
-if (!telegramUserId) { $('chatIdContainer').style.display = 'flex'; }
+
+if (!telegramUserId) {
+    $('chatIdContainer').style.display = 'flex';
+}
 
 function updatePreview() {
     const bg = $('bgColor').value;
@@ -239,7 +358,12 @@ function updatePreview() {
     $('opacityVal').textContent = Math.round(opacity * 100);
 
     const params = new URLSearchParams({
-        bg: bg, card: card, accent: accent, outgoing: outgoing, secondary: secondary, opacity: $('opacityRange').value
+        bg: bg,
+        card: card,
+        accent: accent,
+        outgoing: outgoing,
+        secondary: secondary,
+        opacity: $('opacityRange').value
     });
     $('downloadDirectBtn').href = '/download-theme?' + params.toString();
 }
@@ -249,82 +373,144 @@ function updatePreview() {
 
 function rgbToHsl(r, g, b) {
     r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h = 0, s = 0, l = (max + min) / 2;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
     const delta = max - min;
+    let h = 0;
+    const l = (max + min) / 2;
+    let s = 0;
+
     if (delta !== 0) {
         s = delta / (1 - Math.abs(2 * l - 1));
         if (max === r) h = ((g - b) / delta) % 6;
         else if (max === g) h = (b - r) / delta + 2;
         else h = (r - g) / delta + 4;
-        h *= 60; if (h < 0) h += 360;
+        h *= 60;
+        if (h < 0) h += 360;
     }
     return { h, s, l };
 }
 
 function hslToHex(h, s, l) {
-    s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
-    const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+    s = Math.max(0, Math.min(1, s));
+    l = Math.max(0, Math.min(1, l));
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
     let rgb;
+
     if (h < 60) rgb = [c, x, 0];
     else if (h < 120) rgb = [x, c, 0];
     else if (h < 180) rgb = [0, c, x];
     else if (h < 240) rgb = [0, x, c];
     else if (h < 300) rgb = [x, 0, c];
     else rgb = [c, 0, x];
-    return '#' + rgb.map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
+
+    return '#' + rgb.map(v =>
+        Math.round((v + m) * 255).toString(16).padStart(2, '0')
+    ).join('');
 }
 
 function extractThemePalette(image) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    canvas.width = 96; canvas.height = 96;
+    canvas.width = 96;
+    canvas.height = 96;
     ctx.drawImage(image, 0, 0, 96, 96);
     const pixels = ctx.getImageData(0, 0, 96, 96).data;
     const bins = new Map();
+
     for (let i = 0; i < pixels.length; i += 4) {
         const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], a = pixels[i + 3];
         if (a < 200) continue;
         const hsl = rgbToHsl(r, g, b);
         if (hsl.l > 0.96 || hsl.l < 0.025) continue;
-        const key = `${Math.round(r/16)},${Math.round(g/16)},${Math.round(b/16)}`;
+
+        const qr = Math.round(r / 16), qg = Math.round(g / 16), qb = Math.round(b / 16);
+        const key = `${qr},${qg},${qb}`;
         const old = bins.get(key) || { r: 0, g: 0, b: 0, count: 0 };
         old.r += r; old.g += g; old.b += b; old.count++;
         bins.set(key, old);
     }
-    const colors = [...bins.values()].filter(c => c.count >= 2).sort((a, b) => b.count - a.count).slice(0, 12)
-        .map(c => ({ count: c.count, ...rgbToHsl(c.r / c.count, c.g / c.count, c.b / c.count) }));
+
+    const colors = [...bins.values()]
+        .filter(c => c.count >= 2)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 12)
+        .map(c => ({
+            count: c.count,
+            ...rgbToHsl(c.r / c.count, c.g / c.count, c.b / c.count)
+        }));
+
     if (!colors.length) throw new Error('لم أستطع استخراج ألوان صالحة.');
+
     const dominant = colors[0];
     const bg = hslToHex(dominant.h, Math.min(dominant.s, 0.48), 0.105);
-    const accentSource = [...colors].filter(c => c.s >= 0.18).sort((a, b) => b.count * (0.65 + b.s) - a.count * (0.65 + a.s))[0] || dominant;
+
+    const accentSource = [...colors]
+        .filter(c => c.s >= 0.18)
+        .sort((a, b) => b.count * (0.65 + b.s) - a.count * (0.65 + a.s))[0] || dominant;
+
     const accent = hslToHex(accentSource.h, Math.min(Math.max(accentSource.s, 0.38), 0.68), 0.59);
-    const secondarySource = [...colors].filter(c => Math.abs(c.h - accentSource.h) > 20 && c.s >= 0.12).sort((a, b) => b.count - a.count)[0];
-    const secondary = secondarySource ? hslToHex(secondarySource.h, Math.min(secondarySource.s, 0.48), 0.70) : hslToHex((accentSource.h + 55) % 360, 0.34, 0.70);
+
+    const secondarySource = [...colors]
+        .filter(c => Math.abs(c.h - accentSource.h) > 20 && c.s >= 0.12)
+        .sort((a, b) => b.count - a.count)[0];
+
+    const secondary = secondarySource
+        ? hslToHex(secondarySource.h, Math.min(secondarySource.s, 0.48), 0.70)
+        : hslToHex((accentSource.h + 55) % 360, 0.34, 0.70);
+
     const card = hslToHex(dominant.h, Math.min(dominant.s, 0.38), 0.17);
     const outgoing = hslToHex(accentSource.h, Math.min(Math.max(accentSource.s, 0.34), 0.60), 0.25);
+
     return { bg, card, accent, outgoing, secondary };
 }
 
 $('imageInput').addEventListener('change', function(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        setStatus('الملف المختار ليس صورة.');
+        return;
+    }
+
     const reader = new FileReader();
+    reader.onerror = () => setStatus('تعذرت قراءة الصورة.');
     reader.onload = function(e) {
         const dataUrl = e.target.result;
-        $('wallpaperImage').setAttribute('href', dataUrl);
+        
+        // إسناد الصورة المعاينة لعنصر SVG بدقة وتوافق تام
+        const wallpaperImg = $('wallpaperImage');
+        wallpaperImg.setAttribute('href', dataUrl);
+        wallpaperImg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', dataUrl);
+
         const img = new Image();
         img.onload = function() {
             try {
                 const palette = extractThemePalette(img);
+
                 $('bgColor').value = palette.bg;
                 $('cardColor').value = palette.card;
                 $('accentColor').value = palette.accent;
                 $('outColor').value = palette.outgoing;
                 $('secondaryColor').value = palette.secondary;
+
+                $('palettePreview').innerHTML = [
+                    palette.bg,
+                    palette.card,
+                    palette.accent,
+                    palette.secondary,
+                    palette.outgoing
+                ].map(color => '<div class="color-dot" title="' + color +
+                    '" style="background:' + color + '"></div>').join('');
+
                 updatePreview();
-                setStatus('✨ تم استخراج لوحة الألوان وتطبيقها بنجاح!');
-            } catch (error) { setStatus('تعذر تحليل ألوان الصورة.'); }
+                setStatus('✨ تم استخراج لوحة الألوان الذكية وتطبيقها بنجاح!');
+            } catch (error) {
+                console.error(error);
+                setStatus(error.message || 'تعذر تحليل ألوان الصورة.');
+            }
         };
         img.src = dataUrl;
     };
@@ -333,41 +519,78 @@ $('imageInput').addEventListener('change', function(event) {
 
 function currentThemeData() {
     let userId = telegramUserId;
-    if (!userId && $('manualChatId')) { userId =$('manualChatId'].value.trim(); }
+    if (!userId && $('manualChatId')) {
+        userId = $('manualChatId').value.trim();
+    }
     return {
-        bg: $('bgColor').value, card: $('cardColor').value, accent:$('accentColor').value,
-        outgoing: $('outColor').value, secondary:$('secondaryColor').value,
-        opacity: Number($('opacityRange').value), user_id: userId
+        bg: $('bgColor').value,
+        card: $('cardColor').value,
+        accent: $('accentColor').value,
+        outgoing: $('outColor').value,
+        secondary: $('secondaryColor').value,
+        opacity: Number($('opacityRange').value),
+        user_id: userId
     };
 }
 
 $('copyButton').addEventListener('click', async function() {
     const d = currentThemeData();
-    const text = 'Background=' + d.bg + '\nCard=' + d.card + '\nAccent=' + d.accent;
-    try { await navigator.clipboard.writeText(text); setStatus('📋 تم النسخ.'); } catch (e) {}
+    const text = [
+        'Background=' + d.bg,
+        'Card=' + d.card,
+        'Accent=' + d.accent,
+        'Outgoing=' + d.outgoing,
+        'Secondary=' + d.secondary
+    ].join('\n');
+
+    try {
+        await navigator.clipboard.writeText(text);
+        setStatus('📋 تم نسخ أكواد الألوان.');
+    } catch (error) {
+        setStatus('تعذر النسخ تلقائياً.');
+    }
 });
 
 $('sendTelegramBtn').addEventListener('click', async function() {
     const data = currentThemeData();
-    if (!data.user_id) { setStatus('⚠️ يرجى إدخال معرف تيليجرام (Chat ID).'); $('chatIdContainer').style.display = 'flex'; return; }$('sendTelegramBtn').disabled = true;
-    setStatus('⏳ جارٍ الإرسال للبوت...');
+    if (!data.user_id) {
+        setStatus('⚠️ يرجى إدخال معرف تيليجرام (Chat ID) أولاً.');
+        $('chatIdContainer').style.display = 'flex';
+        return;
+    }
+
+    $('sendTelegramBtn').disabled = true;
+    setStatus('⏳ جارٍ إرسال الثيم إلى دردشتك في البوت...');
+
     try {
         const response = await fetch('/generate-custom-theme', {
-            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
         });
         const resJson = await response.json();
         if (resJson.success) {
-            setStatus('✅ تم إرسال الثيم إلى محادثتك بنجاح!');
+            setStatus('✅ تم إرسال ملف الثيم إلى محادثتك في البوت بنجاح!');
             setTimeout(() => { if (tg && typeof tg.close === 'function') tg.close(); }, 2000);
-        } else { setStatus('❌ فشل: ' + resJson.error); }
-    } catch (error) { setStatus('❌ خطأ في الاتصال.'); } finally { $('sendTelegramBtn').disabled = false; }
+        } else {
+            setStatus('❌ فشل الإرسال: ' + (resJson.error || 'خطأ غير معروف'));
+        }
+    } catch (error) {
+        setStatus('❌ خطأ في الاتصال: ' + error.message);
+    } finally {
+        $('sendTelegramBtn').disabled = false;
+    }
 });
 
-function setStatus(msg) { $('statusMessage').textContent = msg; }
+function setStatus(msg) {
+    $('statusMessage').textContent = msg;
+}
+
 updatePreview();
 </script>
 </body>
 </html>"""
+
 
 def hex_to_signed_int(hex_str, alpha=255):
     hex_str = hex_str.strip().lstrip("#")
@@ -390,11 +613,11 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
     
     c_bubble_in = hex_to_signed_int(card_hex, alpha=bubble_alpha)
     c_bubble_out = hex_to_signed_int(outgoing_hex, alpha=bubble_alpha)
+    
     c_selected = hex_to_signed_int("#334155")
-    c_white = -1
     c_text_main = c_accent  # مطابقة لخوارزمية الثيم القديم: النصوص الرئيسية والأسماء تأخذ لون الأساس
 
-    # القاموس الكامل والشامل لجميع مفاتيح الثيم (بدون استثناء أي مفتاح من بياناتك الأصلية)
+    # القاموس الكامل والشامل لجميع مفاتيح الثيم دون أي نقص
     theme_keys = {
         "WallpaperFileOffset": -1,
         "windowBackgroundWhite": c_bg,
@@ -613,7 +836,7 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
         "chat_lockIcon": c_accent,
         "chat_mediaLoaderPhotoIcon": c_accent,
         "chat_mediaLoaderPhotoIconSelected": c_accent,
-        "chat_mediaTimeText": c_white,
+        "chat_mediaTimeText": c_text_main,
         "chat_messageLinkIn": c_secondary,
         "chat_messageLinkOut": c_secondary,
         "chat_messagePanelBackground": c_bg,
@@ -623,7 +846,7 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
         "ChatShadow": c_accent,
         "chat_messagePanelSend": c_accent,
         "chat_messagePanelShadow": c_bg,
-        "chat_messagePanelText": c_accent,
+        "chat_messagePanelText": c_text_main,
         "chat_messagePanelVoiceBackground": c_bg,
         "chat_messagePanelVoiceDelete": c_accent,
         "chat_messagePanelVoiceDuration": c_accent,
@@ -763,13 +986,13 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
         "chats_message": c_secondary,
         "chats_message_threeLines": c_accent,
         "chats_muteIcon": c_accent,
-        "chats_name": c_accent,
-        "chats_nameArchived": c_accent,
+        "chats_name": c_text_main,
+        "chats_nameArchived": c_text_main,
         "chats_nameIcon": c_accent,
-        "chats_nameMessage": c_accent,
-        "chats_nameMessage_threeLines": c_accent,
-        "chats_nameMessageArchived": c_accent,
-        "chats_nameMessageArchived_threeLines": c_accent,
+        "chats_nameMessage": c_text_main,
+        "chats_nameMessage_threeLines": c_text_main,
+        "chats_nameMessageArchived": c_text_main,
+        "chats_nameMessageArchived_threeLines": c_text_main,
         "chats_pinnedIcon": c_accent,
         "chats_pinnedOverlay": c_bg,
         "chats_secretIcon": c_accent,
@@ -825,7 +1048,7 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
         "dialogSearchIcon": c_secondary,
         "dialogSearchText": c_accent,
         "dialogShadowLine": c_secondary,
-        "dialogTextBlack": c_accent,
+        "dialogTextBlack": c_text_main,
         "dialogTextBlue2": c_accent,
         "dialogTextBlue3": c_accent,
         "dialogTextBlue4": c_accent,
@@ -929,7 +1152,7 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
         "windowBackgroundWhite": c_bg,
         "PreviewBackLinear": c_secondary,
         "PreviewBackLinearShadow": c_bg,
-        "windowBackgroundWhiteBlackText": c_accent,
+        "windowBackgroundWhiteBlackText": c_text_main,
         "windowBackgroundWhiteBlueHeader": c_accent,
         "windowBackgroundWhiteBlueText3": c_accent,
         "windowBackgroundWhiteBlueText4": c_accent,
@@ -941,7 +1164,7 @@ def build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_he
         "windowBackgroundWhiteGrayText3": c_secondary,
         "windowBackgroundWhiteGrayText4": c_secondary,
         "windowBackgroundWhiteGrayText8": c_secondary,
-        "windowBackgroundWhiteGrayText": c_accent,
+        "windowBackgroundWhiteGrayText": c_text_main,
         "windowBackgroundWhiteGreenText2": c_accent,
         "windowBackgroundWhiteLinkSelection": c_selected,
         "windowBackgroundWhiteLinkText": c_secondary,
@@ -995,73 +1218,4 @@ def generate_custom_theme():
     if not user_id:
         return jsonify({"success": False, "error": "معرف تيليجرام غير متوفر."}), 400
 
-    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex, secondary_hex, opacity_val)
-    
-    import tempfile
-    handle = tempfile.NamedTemporaryFile(
-        mode="w", encoding="utf-8", suffix=".attheme", prefix="custom_theme_", delete=False
-    )
-    file_path = handle.name
-    
-    try:
-        handle.write(file_content)
-        handle.close()
-
-        url = f"https://api.telegram.org/bot{TOKEN}/sendDocument"
-        with open(file_path, "rb") as f:
-            files = {"document": ("Custom_Smart_Theme.attheme", f)}
-            data = {
-                "chat_id": user_id, 
-                "caption": "✨ تفضل ملف الثيم الشامل بكافة مفاتيحه دون أي نقص!"
-            }
-            resp = requests.post(url, data=data, files=files)
-            if not resp.ok:
-                try:
-                    err_desc = resp.json().get("description", resp.text)
-                except:
-                    err_desc = resp.text
-                return jsonify({"success": False, "error": err_desc}), 400
-
-        if os.path.exists(file_path):
-            os.remove(file_path)
-
-        return jsonify({"success": True})
-    except Exception as e:
-        if os.path.exists(file_path):
-            os.remove(file_path)
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    base_url = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
-    if not base_url:
-        await message.answer("عذراً، رابط الخدمة غير مضبوط على Render.")
-        return
-
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(
-            text="🎨 افتح صانع الثيمات الذكي",
-            web_app=WebAppInfo(url=f"{base_url}/webapp")
-        )]
-    ])
-    await message.answer(
-        "✨ أهلاً بك في صانع ثيمات تيليجرام المتطور!\n\n"
-        "تم استعادة كافة المفاتيح الأصلية بالكامل:",
-        reply_markup=keyboard
-    )
-
-def run_flask():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port, use_reloader=False, threaded=True)
-
-async def main():
-    flask_thread = threading.Thread(target=run_flask, daemon=True)
-    flask_thread.start()
-    logging.info("Flask Mini App and Telegram bot are starting.")
-    try:
-        await dp.start_polling(bot)
-    finally:
-        await bot.session.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    file_content = build_theme_content(bg_hex, card_hex, accent_hex, outgoing_hex
